@@ -25,11 +25,11 @@
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/add-account.png" alt="添加账号" /></td>
-    <td width="50%"><img src="docs/screenshots/accounts-multi.png" alt="账号列表" /></td>
+    <td width="50%"><img src="docs/screenshots/account-store.png" alt="账号商城" /></td>
   </tr>
   <tr>
     <td align="center"><strong>OAuth 与文件导入</strong></td>
-    <td align="center"><strong>账号列表与额度状态</strong></td>
+    <td align="center"><strong>账号商城</strong></td>
   </tr>
 </table>
 
@@ -43,12 +43,14 @@
     <td align="center"><strong>皮肤仓库</strong></td>
   </tr>
   <tr>
-    <td width="50%"><img src="docs/screenshots/account-store.png" alt="账号商城" /></td>
+
     <td width="50%"><img src="docs/screenshots/settings.png" alt="设置中心" /></td>
+    <td width="50%"><img src="docs/screenshots/macos-status-bar.png" alt="macOS 状态栏额度展示" /></td>
   </tr>
   <tr>
-    <td align="center"><strong>账号商城</strong></td>
+
     <td align="center"><strong>偏好设置与额度工作台</strong></td>
+    <td align="center"><strong>状态栏额度展示</strong></td>
   </tr>
 </table>
 
