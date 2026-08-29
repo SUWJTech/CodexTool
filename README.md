@@ -16,18 +16,47 @@
 
 <table>
   <tr>
-    <td width="50%"><img src=".github/assets/screenshots/account-store.png" alt="账号商城" /></td>
-    <td width="50%"><img src=".github/assets/screenshots/analytics.png" alt="深度成本与会话分析" /></td>
+    <td width="50%"><img src="docs/screenshots/accounts-multi.png" alt="多账号管理" /></td>
+    <td width="50%"><img src="docs/screenshots/analytics.png" alt="深度成本与会话分析" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>多账号管理与额度概览</strong></td>
+    <td align="center"><strong>成本与会话分析</strong></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/add-account.png" alt="添加账号" /></td>
+    <td width="50%"><img src="docs/screenshots/accounts-multi.png" alt="账号列表" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>OAuth 与文件导入</strong></td>
+    <td align="center"><strong>账号列表与额度状态</strong></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/skill-repository.png" alt="Skill 仓库" /></td>
+    <td width="50%"><img src="docs/screenshots/skin-repository.png" alt="DreamSkin 皮肤仓库" /></td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Skill 仓库</strong></td>
+    <td align="center"><strong>DreamSkin 皮肤仓库</strong></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/account-store.png" alt="账号商城" /></td>
+    <td width="50%"><img src="docs/screenshots/settings.png" alt="设置中心" /></td>
   </tr>
   <tr>
     <td align="center"><strong>原生账号商城</strong></td>
-    <td align="center"><strong>成本与会话分析</strong></td>
+    <td align="center"><strong>偏好设置与额度工作台</strong></td>
   </tr>
 </table>
 
 <p align="center">
-  <img src=".github/assets/screenshots/skin-repository.png" alt="DreamSkin 皮肤仓库" />
+  <img src="docs/screenshots/macos-status-bar.png" alt="macOS 状态栏额度展示" />
 </p>
+
+<p align="center"><strong>macOS 状态栏额度展示</strong></p>
 
 ## 核心能力
 
@@ -107,15 +136,19 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 ## 项目来源与许可
 
-CodexTool 基于 [170-carry/codex-tools](https://github.com/170-carry/codex-tools) 二次开发；内置 Skill 内容来自 [anbeime/skill](https://github.com/anbeime/skill)，皮肤引擎与主题协议来自 [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin) 与 [DreamSkin Gallery](https://dreamskin.cc/gallery)。
+致谢 [170-carry/codex-tools](https://github.com/170-carry/codex-tools)  
+致谢 [anbeime/skill](https://github.com/anbeime/skill)  
+致谢 [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin)  
+致谢 [Yiyoki/liandongxiaopu-collection](https://github.com/Yiyoki/liandongxiaopu-collection)  
+致谢 [OpenAI Codex](https://openai.com/zh-Hans-CN/codex/)
 
 项目代码采用 [MIT License](LICENSE)。内置第三方资源继续保留各自许可证、NOTICE 与必要的功能性 Markdown 文件；这些文件属于可执行 Skill/引擎资源，不是项目文档冗余。
 
-## Star 趋势
+## Star 与支持
 
 <p align="center">
-  <a href="https://star-history.com/#SUWJTech/CodexTool&Date">
-    <img src="https://api.star-history.com/svg?repos=SUWJTech/CodexTool&type=Date" alt="CodexTool Star History" />
+  <a href="https://github.com/SUWJTech/CodexTool/stargazers">
+    <img src="https://img.shields.io/github/stars/SUWJTech/CodexTool?style=for-the-badge&logo=github&label=GitHub%20Stars" alt="CodexTool GitHub Stars" />
   </a>
 </p>
 

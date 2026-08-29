@@ -51,6 +51,9 @@ const ROW_ACTION_MENU_ESTIMATED_HEIGHT = 128;
 const ROW_ACTION_MENU_GAP = 6;
 const ROW_ACTION_MENU_VIEWPORT_MARGIN = 8;
 
+const IS_MACOS_RUNTIME =
+  typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/i.test(navigator.platform);
+
 type UiCopy = {
   searchPlaceholder: string;
   allStatuses: string;
@@ -919,7 +922,10 @@ export function AccountsGrid({
   };
 
   return (
-    <section className="accountsWorkspace" aria-busy={loading}>
+    <section
+      className={`accountsWorkspace${IS_MACOS_RUNTIME ? " platformMacos" : ""}`}
+      aria-busy={loading}
+    >
       <aside className="accountOverviewRail" aria-label={copy.metaStrip.ariaLabel}>
         {leadingContent ? <div className="accountListLeading">{leadingContent}</div> : null}
         <TokenUsageStrip

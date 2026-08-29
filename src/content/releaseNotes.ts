@@ -1,4 +1,20 @@
-export const bundledReleaseNotes = `### 0.1.3
+export const bundledReleaseNotes = `### 0.1.4
+
+#### English
+
+- Restored macOS quota and usage status items when an older persisted menu-bar record marked them hidden.
+- Fixed compressed account rows in narrow macOS windows and let usage meters expand to the card width.
+- Added the native macOS Dream Skin runtime with reviewed-gallery filtering, bounded official downloads, SHA-256, ZIP manifest, image, and Safe CSS validation, plus verified rollback handling.
+- Kept the Windows tray and Dream Skin PowerShell paths unchanged and added cross-platform regression coverage.
+
+#### 中文
+
+- 修复旧菜单栏持久化记录导致 macOS 额度图标与用量状态项持续隐藏的问题。
+- 修复 macOS 小窗口账号卡片受压缩的问题，用量进度条会自适应铺满卡片宽度。
+- 补齐 macOS 原生换肤运行链路：当前平台图库筛选、官方源有界下载、SHA-256、ZIP 清单、图片与 Safe CSS 校验，以及失败回滚处理。
+- 保持 Windows 托盘与 Dream Skin PowerShell 链路不变，并补充跨平台回归验证。
+
+- 0.1.3:
 
 #### English
 

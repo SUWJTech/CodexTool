@@ -901,6 +901,29 @@ button.accountTokenExportButton {
   gap: 6px;
 }
 
+/*
+ * WKWebView lays out the three account columns from the window width, while the
+ * centre list can already be narrow. Keep this macOS-only fallback after the
+ * desktop row declaration so it wins the cascade even when container queries
+ * are evaluated before the base row rule.
+ */
+@container account-list (max-width: 960px) {
+  .accountsWorkspace.platformMacos .accountListFrame {
+    --account-row-columns:
+      minmax(180px, 1.35fr)
+      minmax(112px, 1fr)
+      minmax(112px, 1fr)
+      minmax(96px, 0.82fr)
+      minmax(90px, 0.72fr);
+  }
+
+  .accountsWorkspace.platformMacos .accountRow {
+    grid-template-columns: var(--account-row-columns);
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 .rowSwitchButton {
   min-width: 58px;
   min-height: 34px;

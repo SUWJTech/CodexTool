@@ -1238,6 +1238,16 @@
   width: 100%;
 }
 
+.macosStatusBarHint {
+  width: 100%;
+  margin: 0;
+  border-radius: 10px;
+  padding: 9px 11px;
+  color: var(--subtle);
+  background: color-mix(in srgb, var(--brand) 5%, var(--surface-tint) 95%);
+  font: 600 0.7rem/1.45 var(--font-ui);
+}
+
 .trayIconStyleCompound {
   position: relative;
   border: 1px solid color-mix(in srgb, var(--line) 86%, transparent);

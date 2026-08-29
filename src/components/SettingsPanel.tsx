@@ -522,6 +522,13 @@ export function SettingsPanel({
                     );
                   })}
                 </div>
+                {isMacos ? (
+                  <p className="macosStatusBarHint">
+                    {locale.startsWith("zh")
+                      ? "macOS 不允许应用强制置顶菜单栏项目。按住 ⌘ 拖动菜单栏中的 CodexTool，可将它移到控制中心旁；当空间不足时，系统仍可能隐藏状态栏项目。"
+                      : "macOS does not let apps force a menu-bar item to the front. Command-drag CodexTool beside Control Center to choose its position; macOS may still hide status items when space is tight."}
+                  </p>
+                ) : null}
               </div>
             </div>
           ) : null}

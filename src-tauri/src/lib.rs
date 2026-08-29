@@ -1164,6 +1164,14 @@ async fn update_app_settings(
     let settings =
         settings_service::update_app_settings_internal(&app, state.inner(), patch).await?;
     if refresh_usage_surfaces {
+        // macOS status items cache their native NSStatusItem instances.  Always
+        // rebuild the native items for a usage-surface setting update so a
+        // newly selected icon style replaces the old bitmap, rather than only
+        // refreshing its title/usage snapshot. Keep this macOS-only to avoid
+        // changing the Windows tray update path.
+        #[cfg(target_os = "macos")]
+        let rebuild_macos_status_items = true;
+        #[cfg(not(target_os = "macos"))]
         let rebuild_macos_status_items = previous_settings
             .as_ref()
             .map(|previous| {
@@ -1175,7 +1183,17 @@ async fn update_app_settings(
             })
             .unwrap_or(false);
         let refresh_result = if rebuild_macos_status_items {
-            tray::rebuild_usage_surfaces_snapshot(&app)
+            #[cfg(target_os = "macos")]
+            {
+                tray::rebuild_usage_surfaces_snapshot_with_style(
+                    &app,
+                    settings.windows_tray_icon_style,
+                )
+            }
+            #[cfg(not(target_os = "macos"))]
+            {
+                tray::rebuild_usage_surfaces_snapshot(&app)
+            }
         } else {
             tray::refresh_usage_surfaces_snapshot(&app)
         };

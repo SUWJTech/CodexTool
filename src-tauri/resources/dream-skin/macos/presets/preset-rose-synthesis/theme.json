@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "preset-rose-synthesis",
+  "name": "Rose Synthesis",
+  "brandSubtitle": "CODEXTOOL FUTURE LAB",
+  "tagline": "Warm light for ambitious systems.",
+  "projectPrefix": "Open workspace · ",
+  "projectLabel": "◉  Open workspace",
+  "statusText": "SYNTHESIS READY",
+  "quote": "IMAGINE · ITERATE · SHIP",
+  "image": "rose-synthesis.png",
+  "appearance": "light",
+  "art": { "focusX": 0.75, "focusY": 0.48, "safeArea": "left", "taskMode": "ambient" },
+  "colors": {
+    "background": "#fff7f8", "panel": "#ffffff", "panelAlt": "#fff0f2",
+    "accent": "#e85d75", "accentAlt": "#fb7185", "secondary": "#8b5cf6",
+    "highlight": "#f43f5e", "text": "#2d1b2e", "muted": "#86677f",
+    "line": "rgba(232, 93, 117, .2)"
+  },
+  "promoTitle": "CodexTool Skin",
+  "promoSub": "Rose Synthesis",
+  "promoUrl": "https://github.com/SUWJTech/CodexTool"
+}

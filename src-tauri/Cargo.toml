@@ -1,6 +1,6 @@
 [package]
 name = "codextool"
-version = "0.1.3"
+version = "0.1.4"
 description = "CodexTool desktop account, Skill, and appearance manager"
 authors = ["SUWJTech"]
 license = "MIT"

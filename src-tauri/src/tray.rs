@@ -35,9 +35,11 @@ use crate::windows_taskbar_widget::WindowsWidgetStatus;
 #[cfg(target_os = "windows")]
 use crate::windows_tray_icon::{render_windows_tray_icon, static_codextool_icon};
 #[cfg(target_os = "macos")]
-const MACOS_TEXT_STATUS_AUTOSAVE_NAME: &str = "com.yourname.codextool.status-item.text";
+// v2 intentionally resets any hidden position persisted by macOS for older
+// status items. We also force visibility after restoring the autosave name.
+const MACOS_TEXT_STATUS_AUTOSAVE_NAME: &str = "com.yourname.codextool.status-item.text.v2";
 #[cfg(target_os = "macos")]
-const MACOS_QUOTA_STATUS_AUTOSAVE_NAME: &str = "com.yourname.codextool.status-item.quota";
+const MACOS_QUOTA_STATUS_AUTOSAVE_NAME: &str = "com.yourname.codextool.status-item.quota.v2";
 #[cfg(target_os = "windows")]
 const WINDOWS_WIDGET_STALE_AFTER_SECONDS: i64 = 10 * 60;
 
@@ -747,7 +749,24 @@ fn build_native_macos_status_bar_tray(
         .ok_or_else(|| format!("读取 {description} macOS 状态项失败"))?;
     let autosave_name = objc2_foundation::NSString::from_str(autosave_name);
     status_item.setAutosaveName(Some(&autosave_name));
+    // setAutosaveName restores macOS' persisted visibility. A previous app
+    // version could therefore recreate a valid NSStatusItem that remained
+    // invisible forever. User settings are authoritative here, so explicitly
+    // reveal every status item that CodexTool decided to create.
+    status_item.setVisible(true);
     Ok(tray)
+}
+
+#[cfg(target_os = "macos")]
+fn reveal_native_macos_status_bar_tray(
+    tray: &tray_icon::TrayIcon,
+    description: &str,
+) -> Result<(), String> {
+    let status_item = tray
+        .ns_status_item()
+        .ok_or_else(|| format!("读取 {description} macOS 状态项失败"))?;
+    status_item.setVisible(true);
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]
@@ -778,7 +797,6 @@ fn update_macos_tray_snapshot_on_main_thread(
     let logo_ring_show_percentage = read_macos_tray_logo_ring_show_percentage(app);
     let locale = i18n::app_locale(app);
     let percent = quota_icon_percent(accounts);
-
     if should_show_usage_surface(mode) {
         let title = build_tray_usage_title(accounts, mode, show_window_labels);
         let tooltip = build_macos_tray_tooltip(accounts, mode, locale);
@@ -790,8 +808,8 @@ fn update_macos_tray_snapshot_on_main_thread(
             MacosTrayTextIconStyle::ProgressRing => MacosTrayTextIconStyle::CodexTool,
         };
         // tray-icon 0.21 在 macOS 上将隐藏项重新设为可见时，偶尔只会得到
-        // 位于屏幕底边的离屏窗口。切换样式时先销毁旧项，再创建新项，既保留
-        // 原生弹入动画，也保证文字栏与额度图标能稳定地同时留在菜单栏。
+        // 位于屏幕底边的离屏窗口。切换样式时先销毁旧项，再创建新项，保证
+        // 单独启用文字栏时仍能稳定留在菜单栏。
         remove_macos_text_tray(inactive_text_style);
         let text_tray = if let Some(tray) = current_macos_text_tray(text_icon_style) {
             tray
@@ -825,6 +843,7 @@ fn update_macos_tray_snapshot_on_main_thread(
         text_tray
             .set_tooltip(Some(tooltip.as_str()))
             .map_err(|error| format!("更新文字状态栏提示失败: {error}"))?;
+        reveal_native_macos_status_bar_tray(&text_tray, text_tray_description(text_icon_style))?;
     } else {
         remove_macos_text_tray(MacosTrayTextIconStyle::CodexTool);
         remove_macos_text_tray(MacosTrayTextIconStyle::ProgressRing);
@@ -871,6 +890,7 @@ fn update_macos_tray_snapshot_on_main_thread(
     quota_tray
         .set_tooltip(Some(quota_tooltip.as_str()))
         .map_err(|error| format!("更新额度状态栏提示失败: {error}"))?;
+    reveal_native_macos_status_bar_tray(&quota_tray, "额度")?;
     #[cfg(debug_assertions)]
     log_current_macos_status_bar_rects("update");
     Ok(())
@@ -1033,7 +1053,7 @@ pub(crate) fn rebuild_usage_surfaces_snapshot(app: &AppHandle) -> Result<(), Str
         let rebuild_app = app.clone();
         let (sender, receiver) = std::sync::mpsc::channel();
         app.run_on_main_thread(move || {
-            let result = replace_macos_status_bar_trays(&rebuild_app, "settings-rebuild");
+            let result = replace_macos_status_bar_trays(&rebuild_app, "settings-rebuild", None);
             let _ = sender.send(result);
         })
         .map_err(|error| format!("调度 macOS 状态栏重建失败: {error}"))?;
@@ -1045,6 +1065,31 @@ pub(crate) fn rebuild_usage_surfaces_snapshot(app: &AppHandle) -> Result<(), Str
     {
         refresh_usage_surfaces_snapshot(app)
     }
+}
+
+/// Rebuild macOS status items using the style value that was just accepted by
+/// the settings command. Passing it explicitly avoids a race where the native
+/// item is recreated while a stale store snapshot is still being read.
+#[cfg(target_os = "macos")]
+pub(crate) fn rebuild_usage_surfaces_snapshot_with_style(
+    app: &AppHandle,
+    icon_style: WindowsTrayIconStyle,
+) -> Result<(), String> {
+    let app = app.clone();
+    let rebuild_app = app.clone();
+    let (sender, receiver) = std::sync::mpsc::channel();
+    app.run_on_main_thread(move || {
+        let result = replace_macos_status_bar_trays(
+            &rebuild_app,
+            "settings-style-rebuild",
+            Some(icon_style),
+        );
+        let _ = sender.send(result);
+    })
+    .map_err(|error| format!("调度 macOS 状态栏样式重建失败: {error}"))?;
+    receiver
+        .recv()
+        .map_err(|error| format!("接收 macOS 状态栏样式重建结果失败: {error}"))?
 }
 
 pub(crate) fn update_usage_surfaces_error(app: &AppHandle, error: &str) {
@@ -1188,6 +1233,7 @@ fn log_current_macos_status_bar_rects(context: &str) {
 fn create_macos_status_bar_trays(
     app: &AppHandle,
     _log_context: &str,
+    icon_style_override: Option<WindowsTrayIconStyle>,
 ) -> Result<
     (
         Option<tray_icon::TrayIcon>,
@@ -1198,7 +1244,7 @@ fn create_macos_status_bar_trays(
 > {
     let (mode, show_window_labels) = read_tray_title_config(app);
     let text_icon_style = read_macos_tray_text_icon_style(app);
-    let icon_style = read_macos_tray_icon_style(app);
+    let icon_style = icon_style_override.unwrap_or_else(|| read_macos_tray_icon_style(app));
     let quota_icon_visible = read_tray_quota_icon_visible(app);
     let logo_ring_show_percentage = read_macos_tray_logo_ring_show_percentage(app);
     let locale = i18n::app_locale(app);
@@ -1233,8 +1279,8 @@ fn create_macos_status_bar_trays(
     #[cfg(debug_assertions)]
     log_macos_status_bar_render(_log_context, &summaries, &title);
 
-    let quota_mode = TrayUsageDisplayMode::Remaining;
     let percent = quota_icon_percent(&summaries);
+    let quota_mode = TrayUsageDisplayMode::Remaining;
     let quota_title = macos_quota_icon_title(icon_style, percent, logo_ring_show_percentage);
     let quota_tooltip = build_macos_tray_tooltip(&summaries, quota_mode, locale);
     let quota_tray = if quota_icon_visible {
@@ -1297,13 +1343,17 @@ fn create_macos_status_bar_trays(
 }
 
 #[cfg(target_os = "macos")]
-fn replace_macos_status_bar_trays(app: &AppHandle, log_context: &str) -> Result<(), String> {
+fn replace_macos_status_bar_trays(
+    app: &AppHandle,
+    log_context: &str,
+    icon_style_override: Option<WindowsTrayIconStyle>,
+) -> Result<(), String> {
     // Drop every old NSStatusItem before creating replacements. Creating a new item
     // with the same ID before the old wrapper is dropped lets the old Drop remove
     // the new registration and was the source of the earlier disappearing icons.
     remove_all_macos_status_bar_trays();
     let (quota_tray, text_codex_tray, text_progress_tray) =
-        create_macos_status_bar_trays(app, log_context)?;
+        create_macos_status_bar_trays(app, log_context, icon_style_override)?;
     MACOS_QUOTA_TRAY.with(|slot| {
         let previous = slot.replace(quota_tray);
         drop(previous);
@@ -1321,7 +1371,7 @@ fn replace_macos_status_bar_trays(app: &AppHandle, log_context: &str) -> Result<
 
 #[cfg(target_os = "macos")]
 fn setup_macos_status_bar(app: &AppHandle) -> Result<(), String> {
-    replace_macos_status_bar_trays(app, "setup")
+    replace_macos_status_bar_trays(app, "setup", None)
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -1526,6 +1576,8 @@ mod tests {
             MACOS_TEXT_STATUS_AUTOSAVE_NAME,
             MACOS_QUOTA_STATUS_AUTOSAVE_NAME
         );
+        assert!(MACOS_TEXT_STATUS_AUTOSAVE_NAME.ends_with(".v2"));
+        assert!(MACOS_QUOTA_STATUS_AUTOSAVE_NAME.ends_with(".v2"));
     }
 
     fn current_account_with_usage() -> AccountSummary {
