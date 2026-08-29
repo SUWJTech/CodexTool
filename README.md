@@ -20,8 +20,8 @@
     <td width="50%"><img src="docs/screenshots/analytics.png" alt="深度成本与会话分析" /></td>
   </tr>
   <tr>
-    <td align="center"><strong>多账号管理与额度概览</strong></td>
-    <td align="center"><strong>成本与会话分析</strong></td>
+    <td align="center"><strong>多账号管理与切换</strong></td>
+    <td align="center"><strong>额度成本与会话分析</strong></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/add-account.png" alt="添加账号" /></td>
@@ -36,18 +36,18 @@
 <table>
   <tr>
     <td width="50%"><img src="docs/screenshots/skill-repository.png" alt="Skill 仓库" /></td>
-    <td width="50%"><img src="docs/screenshots/skin-repository.png" alt="DreamSkin 皮肤仓库" /></td>
+    <td width="50%"><img src="docs/screenshots/skin-repository.png" alt="皮肤仓库" /></td>
   </tr>
   <tr>
     <td align="center"><strong>Skill 仓库</strong></td>
-    <td align="center"><strong>DreamSkin 皮肤仓库</strong></td>
+    <td align="center"><strong>皮肤仓库</strong></td>
   </tr>
   <tr>
     <td width="50%"><img src="docs/screenshots/account-store.png" alt="账号商城" /></td>
     <td width="50%"><img src="docs/screenshots/settings.png" alt="设置中心" /></td>
   </tr>
   <tr>
-    <td align="center"><strong>原生账号商城</strong></td>
+    <td align="center"><strong>账号商城</strong></td>
     <td align="center"><strong>偏好设置与额度工作台</strong></td>
   </tr>
 </table>
@@ -56,7 +56,7 @@
   <img src="docs/screenshots/macos-status-bar.png" alt="macOS 状态栏额度展示" />
 </p>
 
-<p align="center"><strong>macOS 状态栏额度展示</strong></p>
+<p align="center"><strong>状态栏额度展示</strong></p>
 
 ## 核心能力
 
