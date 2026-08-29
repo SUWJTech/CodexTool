@@ -43,22 +43,15 @@
     <td align="center"><strong>皮肤仓库</strong></td>
   </tr>
   <tr>
-
     <td width="50%"><img src="docs/screenshots/settings.png" alt="设置中心" /></td>
     <td width="50%"><img src="docs/screenshots/macos-status-bar.png" alt="macOS 状态栏额度展示" /></td>
   </tr>
   <tr>
-
     <td align="center"><strong>偏好设置与额度工作台</strong></td>
     <td align="center"><strong>状态栏额度展示</strong></td>
   </tr>
 </table>
 
-<p align="center">
-  <img src="docs/screenshots/macos-status-bar.png" alt="macOS 状态栏额度展示" />
-</p>
-
-<p align="center"><strong>状态栏额度展示</strong></p>
 
 ## 核心能力
 
