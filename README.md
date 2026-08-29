@@ -78,6 +78,7 @@
 
 前往 [Releases](https://github.com/SUWJTech/CodexTool/releases) 下载：
 
+- `CodexTool-*-aarch64.dmg`：MacOS 安装包，双击拖动安装，签名问题可看常见问题排查。
 - `CodexTool-*-setup.exe`：Windows 安装包，可选择用户/全局安装模式与目标目录。
 - `CodexTool-*-portable.zip`：绿色便携版，解压后双击 `CodexTool.exe`。
 
