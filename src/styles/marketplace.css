@@ -1,0 +1,1125 @@
+.marketPage {
+  height: 100%;
+  overflow: auto;
+  width: min(var(--page-shell-width, 1520px), 100%);
+  margin: 0 auto;
+  padding: clamp(14px, 2vw, 28px);
+  box-sizing: border-box;
+}
+
+.marketHero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(20px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 88% 16%, color-mix(in srgb, var(--accent, var(--brand)) 18%, transparent), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel) 90%, var(--brand) 10%), var(--panel) 68%);
+  box-shadow: var(--shadow-soft);
+}
+
+.marketHero h2 {
+  margin: 6px 0 8px;
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.035em !important;
+}
+
+.marketHero p {
+  max-width: 760px;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.marketKicker {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.marketHeroActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.marketToolbar {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  margin: 18px 0 12px;
+}
+
+.marketSearch {
+  flex: 1;
+  min-width: 180px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0 14px;
+  outline: 0;
+  background: var(--panel);
+  color: var(--ink);
+  font: 650 0.84rem/1 var(--font-ui);
+  box-shadow: inset 0 1px var(--surface-highlight-soft);
+}
+
+.marketSearch:focus {
+  border-color: color-mix(in srgb, var(--brand) 62%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 13%, transparent);
+}
+
+.marketCount,
+.marketAttribution {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.marketCategories {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px 0 14px;
+}
+
+.marketCategory {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.marketCategory.isActive {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--line));
+  background: color-mix(in srgb, var(--accent) 12%, var(--panel));
+  color: var(--ink);
+}
+
+.skillGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 14px;
+}
+
+.skillCard {
+  display: flex;
+  min-height: 210px;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.skillCard:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand) 28%, var(--line));
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--brand) 9%, transparent);
+}
+
+.skillCardTop,
+.skillCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skillCategory,
+.skillStatus {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.skillStatus.isInstalled {
+  color: var(--success, #1f9d65);
+}
+
+.skillCard h3 {
+  margin: 16px 0 8px;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.skillCard p {
+  flex: 1;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.skillCardFooter {
+  margin-top: 18px;
+}
+
+.skillCardFooter > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.compactAction {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+}
+
+.marketEmpty,
+.marketError,
+.marketPreviewNote,
+.skinSecurityNote {
+  margin: 14px 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.marketError {
+  border-color: color-mix(in srgb, #d14343 35%, var(--line));
+  color: #b23232;
+}
+
+.marketPreviewNote {
+  border-color: color-mix(in srgb, var(--brand) 28%, var(--line));
+  background: color-mix(in srgb, var(--brand-soft) 52%, var(--panel));
+  color: color-mix(in srgb, var(--ink) 78%, var(--subtle));
+  line-height: 1.5;
+}
+
+.marketAttribution {
+  margin: 18px 4px 4px;
+}
+
+.skinSecurityNote {
+  border-color: color-mix(in srgb, #d8a21b 40%, var(--line));
+  background: color-mix(in srgb, #ffca3a 8%, var(--panel));
+  line-height: 1.55;
+}
+
+.marketSourceLink {
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+}
+
+.skinCatalogToolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0 12px;
+}
+
+.skinEngineStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel);
+}
+
+.skinEngineStatus > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.skinEngineStatus strong {
+  font-size: 13px;
+}
+
+.skinEngineStatus span:not(.skinEngineDot) {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.skinEngineDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--muted) 12%, transparent);
+}
+
+.skinEngineDot.isActive {
+  background: var(--success, #1f9d65);
+  box-shadow: 0 0 0 5px color-mix(in srgb, #1f9d65 14%, transparent);
+}
+
+.skinCatalogSearch {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 180px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.skinCatalogSearch input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.skinCatalogGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+
+.skinCatalogCard {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.skinCatalogCard.isActive {
+  border-color: color-mix(in srgb, var(--success, #1f9d65) 55%, var(--line));
+  box-shadow: 0 14px 36px color-mix(in srgb, #1f9d65 12%, transparent);
+}
+
+.skinCatalogPreview {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #121425;
+}
+
+.skinCatalogPreview::after {
+  content: "";
+  position: absolute;
+  inset: 48% 0 0;
+  background: linear-gradient(transparent, rgba(8, 10, 22, .78));
+  pointer-events: none;
+}
+
+.skinCatalogPreview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .24s ease;
+}
+
+.skinCatalogCard:hover .skinCatalogPreview img {
+  transform: scale(1.025);
+}
+
+.skinCatalogPreviewBadges {
+  position: absolute;
+  z-index: 1;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.skinCatalogPreviewBadges span,
+.skinCatalogTags span {
+  padding: 5px 8px;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.skinCatalogBody {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 18px;
+}
+
+.skinCatalogTitleRow h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.skinCatalogTitleRow span,
+.skinCatalogBody p {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.skinCatalogBody p {
+  min-height: 3.2em;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.skinCatalogTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skinCatalogBody > button {
+  align-self: flex-start;
+}
+
+@media (max-width: 760px) {
+  .marketPage { padding: 14px; }
+  .marketHero { flex-direction: column; align-items: stretch; }
+  .marketToolbar { grid-template-columns: 1fr; gap: 8px; }
+  .marketHeroActions { justify-content: stretch; }
+  .marketHeroActions button { flex: 1; }
+  .skinCatalogToolbar { align-items: stretch; flex-direction: column; }
+  .skinCatalogGrid { grid-template-columns: 1fr; }
+}
+
+/* Native account marketplace */
+.accountStorePage {
+  width: min(var(--page-shell-width, 1520px), 100%);
+  height: 100%;
+  margin: 0 auto;
+  padding: clamp(14px, 2vw, 28px);
+  overflow: auto;
+}
+
+.storeProviderSwitcher {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 5px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.storeProviderSwitcher > span {
+  padding: 0 9px;
+  color: var(--subtle);
+  font: 760 0.7rem/1 var(--font-ui);
+}
+
+.storeProviderSwitcher button {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 0 13px;
+  color: var(--subtle);
+  background: transparent;
+  font: 780 0.76rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.storeProviderSwitcher button:hover {
+  color: var(--ink);
+  background: var(--bg-1);
+}
+
+.storeProviderSwitcher button.isActive {
+  border-color: color-mix(in srgb, var(--brand) 20%, var(--line));
+  color: var(--brand);
+  background: var(--panel);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--brand) 10%, transparent);
+}
+
+.storeProviderSwitcher .appIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.storeProviderSwitcher button i {
+  border-radius: 999px;
+  padding: 3px 6px;
+  color: var(--brand);
+  background: var(--brand-soft);
+  font: normal 800 0.58rem/1 var(--font-ui);
+}
+
+.ldxpStoreView {
+  min-width: 0;
+}
+
+.ldxpStoreHero {
+  background:
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, #34d399 14%, transparent), transparent 28%),
+    radial-gradient(circle at 72% 100%, color-mix(in srgb, #38bdf8 12%, transparent), transparent 36%),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel) 92%, var(--brand) 8%), var(--panel) 78%);
+}
+
+.ldxpCheckoutHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--subtle);
+  font: 720 0.68rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.ldxpCheckoutHint .appIcon {
+  width: 15px;
+  height: 15px;
+  color: var(--brand);
+}
+
+.ldxpSupplierError {
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid color-mix(in srgb, var(--warning) 34%, var(--line));
+  border-radius: 16px;
+  padding: 13px 14px;
+  background: color-mix(in srgb, var(--warning) 7%, var(--panel));
+}
+
+.ldxpSupplierError > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ldxpSupplierError .appIcon {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+  color: var(--warning);
+}
+
+.ldxpSupplierError span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.ldxpSupplierError strong {
+  color: var(--ink);
+  font: 800 0.78rem/1.2 var(--font-ui);
+}
+
+.ldxpSupplierError small {
+  color: var(--subtle);
+  font: 620 0.7rem/1.45 var(--font-ui);
+}
+
+.ldxpGoodsCard .accountGoodsVisual {
+  background:
+    radial-gradient(circle at 67% 18%, rgba(52, 211, 153, .24), transparent 34%),
+    linear-gradient(145deg, #071b24, #123b56 58%, #18355d);
+}
+
+.accountStoreHero {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line));
+  border-radius: 26px;
+  padding: clamp(22px, 3vw, 36px);
+  background:
+    radial-gradient(circle at 88% 12%, color-mix(in srgb, #22d3ee 20%, transparent), transparent 28%),
+    radial-gradient(circle at 72% 100%, color-mix(in srgb, #8b5cf6 18%, transparent), transparent 36%),
+    linear-gradient(135deg, color-mix(in srgb, var(--panel) 86%, var(--brand) 14%), var(--panel) 72%);
+  box-shadow: var(--section-shadow);
+}
+
+.accountStoreHero h2 {
+  margin: 7px 0 8px;
+  color: var(--ink);
+  font: 860 clamp(1.7rem, 3vw, 2.45rem)/1.05 var(--font-ui);
+  letter-spacing: -0.045em !important;
+}
+
+.accountStoreHero p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--subtle);
+  font: 620 0.9rem/1.65 var(--font-ui);
+}
+
+.storefrontIdentity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.storefrontIdentity > img {
+  width: 74px;
+  height: 74px;
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--brand) 30%, var(--line));
+  border-radius: 22px;
+  object-fit: cover;
+  background: var(--panel);
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+.storefrontTrustStack {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.storefrontTrustStack small {
+  color: var(--subtle);
+  font: 700 0.68rem/1 var(--font-ui);
+}
+
+.storeAnnouncement {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--line));
+  border-radius: 16px;
+  padding: 13px 16px;
+  background: color-mix(in srgb, var(--brand-soft) 42%, var(--panel));
+}
+
+.storeAnnouncement strong {
+  color: var(--brand);
+  font: 820 0.72rem/1.45 var(--font-ui);
+}
+
+.storeAnnouncement span {
+  white-space: pre-line;
+  color: var(--subtle);
+  font: 620 0.75rem/1.45 var(--font-ui);
+}
+
+.storeConnectionBadge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: color-mix(in srgb, var(--panel) 82%, transparent);
+  color: var(--subtle);
+  font: 800 0.74rem/1 var(--font-ui);
+  backdrop-filter: blur(12px);
+}
+
+.storeConnectionBadge i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--muted) 14%, transparent);
+}
+
+.storeConnectionBadge.isConnected {
+  border-color: color-mix(in srgb, var(--ok) 30%, var(--line));
+  color: var(--ok);
+}
+
+.storeConnectionBadge.isConnected i {
+  background: var(--ok);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ok) 14%, transparent);
+}
+
+.storeCredentialCard {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.storeCredentialHead,
+.storeCredentialFields,
+.storeToolbar,
+.accountGoodsTitle,
+.accountGoodsMeta,
+.storePurchaseSummary,
+.storePurchaseDialog > footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.storeCredentialHead > div {
+  display: grid;
+  gap: 4px;
+}
+
+.storeCredentialHead strong {
+  color: var(--ink);
+  font: 850 0.95rem/1.2 var(--font-ui);
+}
+
+.storeCredentialHead span,
+.storeCredentialHead code {
+  color: var(--subtle);
+  font: 650 0.72rem/1.4 var(--font-ui);
+}
+
+.storeCredentialFields {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(180px, .75fr) minmax(220px, 1.25fr) auto;
+}
+
+.storeCredentialFields label,
+.storePurchaseSummary label {
+  display: grid;
+  gap: 6px;
+}
+
+.storeCredentialFields label span,
+.storePurchaseSummary label span {
+  color: var(--subtle);
+  font: 760 0.68rem/1 var(--font-ui);
+}
+
+.storeCredentialFields input,
+.storePurchaseSummary input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 0 12px;
+  outline: 0;
+  background: var(--bg-0);
+  color: var(--ink);
+  font: 650 0.82rem/1 var(--font-mono);
+}
+
+.storeCredentialFields input:focus,
+.storePurchaseSummary input:focus {
+  border-color: color-mix(in srgb, var(--brand) 64%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.storeCredentialFields > button {
+  align-self: end;
+  min-height: 42px;
+}
+
+.storeToolbar {
+  margin: 18px 0 14px;
+}
+
+.storeToolbar .skinCatalogSearch {
+  flex: 1 1 320px;
+}
+
+.storePaymentSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.storePaymentSummary > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: var(--subtle);
+  background: var(--panel);
+  font: 720 0.66rem/1 var(--font-ui);
+}
+
+.storePaymentSummary img {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  object-fit: contain;
+}
+
+.accountGoodsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 16px;
+}
+
+.accountGoodsCard {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.accountGoodsCard:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--brand) 28%, var(--line));
+  box-shadow: 0 18px 38px color-mix(in srgb, var(--brand) 11%, transparent);
+}
+
+.accountGoodsVisual {
+  position: relative;
+  height: 138px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 65% 24%, rgba(34, 211, 238, .24), transparent 32%),
+    linear-gradient(145deg, #07142e, #182c69 58%, #42227c);
+}
+
+.accountGoodsVisual img {
+  width: 86px;
+  height: 86px;
+  border-radius: 24px;
+  object-fit: cover;
+  filter: drop-shadow(0 14px 24px rgba(0, 0, 0, .3));
+}
+
+.accountGoodsVisual > span {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  padding: 6px 9px;
+  color: #eaf8ff;
+  background: rgba(4, 12, 32, .56);
+  backdrop-filter: blur(10px);
+  font: 800 0.65rem/1 var(--font-ui);
+}
+
+.accountGoodsBody {
+  display: grid;
+  gap: 13px;
+  padding: 17px;
+}
+
+.accountGoodsTitle {
+  align-items: flex-start;
+}
+
+.accountGoodsTitle h3 {
+  margin: 0 0 5px;
+  color: var(--ink);
+  font: 850 1rem/1.2 var(--font-ui);
+}
+
+.accountGoodsTitle code,
+.accountGoodsMeta {
+  color: var(--subtle);
+  font: 650 0.68rem/1.2 var(--font-mono);
+}
+
+.accountGoodsTitle > strong {
+  color: var(--brand);
+  font: 900 1.1rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.accountGoodsBody > p {
+  min-height: 3em;
+  margin: 0;
+  color: var(--subtle);
+  font: 600 0.78rem/1.55 var(--font-ui);
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.accountGoodsBody > button {
+  width: 100%;
+}
+
+.storePurchaseOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: var(--overlay-scrim-strong);
+  backdrop-filter: blur(10px);
+}
+
+.storePurchaseDialog {
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 36px);
+  overflow: auto;
+  border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--line));
+  border-radius: 24px;
+  padding: 20px;
+  background: var(--panel-bg);
+  box-shadow: 0 30px 80px rgba(3, 8, 24, .34);
+}
+
+.storePurchaseDialog > header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 12px;
+}
+
+.storePurchaseDialog > header span {
+  color: var(--brand);
+  font: 850 0.66rem/1 var(--font-ui);
+}
+
+.storePurchaseDialog h3 {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font: 880 1.3rem/1.2 var(--font-ui);
+}
+
+.storePurchaseSummary {
+  margin-top: 18px;
+  align-items: end;
+}
+
+.storePurchaseSummary label {
+  flex: 1;
+}
+
+.storeEmailField {
+  flex: 2 !important;
+}
+
+.storePaymentPicker,
+.storeCouponRow {
+  margin-top: 15px;
+  display: grid;
+  gap: 8px;
+}
+
+.storePaymentPicker > span,
+.storeCouponRow label > span {
+  color: var(--subtle);
+  font: 760 0.68rem/1 var(--font-ui);
+}
+
+.storePaymentPicker > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.storePaymentPicker button {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 8px 12px;
+  color: var(--ink);
+  background: var(--bg-0);
+}
+
+.storePaymentPicker button.isSelected {
+  border-color: color-mix(in srgb, var(--brand) 64%, var(--line));
+  background: color-mix(in srgb, var(--brand-soft) 58%, var(--panel));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 9%, transparent);
+}
+
+.storePaymentPicker img {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  object-fit: contain;
+}
+
+.storeCouponRow {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.storeCouponRow label {
+  display: grid;
+  gap: 6px;
+}
+
+.storeCouponRow input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 0 12px;
+  outline: 0;
+  background: var(--bg-0);
+  color: var(--ink);
+}
+
+.storeOrderCheckout {
+  margin-top: 20px;
+  display: grid;
+  gap: 16px;
+  border: 1px solid color-mix(in srgb, var(--ok) 28%, var(--line));
+  border-radius: 18px;
+  padding: 18px;
+  background: color-mix(in srgb, var(--ok) 7%, var(--panel));
+}
+
+.storeOrderPulse {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.storeOrderPulse > i {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--ok);
+  box-shadow: 0 0 0 7px color-mix(in srgb, var(--ok) 14%, transparent);
+}
+
+.storeOrderPulse > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.storeOrderPulse span {
+  color: var(--ink);
+  font: 850 0.94rem/1.2 var(--font-ui);
+}
+
+.storeOrderPulse code,
+.storeOrderCheckout p {
+  overflow-wrap: anywhere;
+  color: var(--subtle);
+  font: 650 0.72rem/1.5 var(--font-ui);
+}
+
+.storeOrderCheckout p {
+  margin: 0;
+}
+
+.storeQuoteGrid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.storeQuoteGrid > div {
+  display: grid;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 13px;
+  background: color-mix(in srgb, var(--bg-1) 76%, var(--brand-soft) 24%);
+}
+
+.storeQuoteGrid span {
+  color: var(--subtle);
+  font: 700 0.7rem/1 var(--font-ui);
+}
+
+.storeQuoteGrid strong {
+  color: var(--ink);
+  font: 880 1.1rem/1 var(--font-ui);
+}
+
+.storeQuoteGrid .isTotal {
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--line));
+  background: color-mix(in srgb, var(--brand-soft) 65%, var(--panel));
+}
+
+.storeQuoteGrid .isTotal strong {
+  color: var(--brand);
+}
+
+.storePurchaseWarning,
+.storeOrderSuccess {
+  margin: 14px 0;
+  border: 1px solid color-mix(in srgb, var(--warning) 36%, var(--line));
+  border-radius: 13px;
+  padding: 12px;
+  color: color-mix(in srgb, var(--warning) 66%, var(--ink));
+  background: color-mix(in srgb, var(--warning) 8%, var(--panel));
+  font: 650 0.76rem/1.5 var(--font-ui);
+}
+
+.storeOrderSuccess {
+  display: grid;
+  gap: 5px;
+  border-color: color-mix(in srgb, var(--ok) 38%, var(--line));
+  color: var(--ok);
+  background: color-mix(in srgb, var(--ok) 8%, var(--panel));
+}
+
+.storeOrderSuccess code {
+  overflow-wrap: anywhere;
+  color: var(--ink);
+}
+
+.storePurchaseDialog > footer {
+  justify-content: flex-end;
+}
+
+@media (max-width: 760px) {
+  .accountStorePage { padding: 12px; }
+  .storeProviderSwitcher { width: 100%; overflow-x: auto; justify-content: flex-start; }
+  .storeProviderSwitcher button { flex: 0 0 auto; }
+  .accountStoreHero { flex-direction: column; }
+  .storefrontIdentity { align-items: flex-start; }
+  .storefrontTrustStack { justify-items: start; }
+  .storeConnectionBadge { align-self: flex-start; }
+  .storeCredentialHead { align-items: flex-start; flex-direction: column; }
+  .storeCredentialFields { grid-template-columns: 1fr; }
+  .storeToolbar { align-items: stretch; flex-direction: column; }
+  .storeToolbar > * { width: 100%; }
+  .storeToolbar .skinCatalogSearch { flex: 0 0 auto; }
+  .ldxpSupplierError { align-items: stretch; flex-direction: column; }
+  .ldxpSupplierError > button { width: 100%; }
+}
+
+@media (max-width: 430px) {
+  .accountStorePage { padding: 8px; }
+  .accountStoreHero { padding: 18px; border-radius: 20px; }
+  .storeQuoteGrid { grid-template-columns: 1fr; }
+  .storePurchaseSummary { align-items: stretch; flex-direction: column; }
+  .storePurchaseSummary > * { width: 100%; }
+  .storefrontIdentity { display: grid; }
+  .storeAnnouncement { grid-template-columns: 1fr; }
+  .storePaymentPicker > div,
+  .storeCouponRow { grid-template-columns: 1fr; }
+}

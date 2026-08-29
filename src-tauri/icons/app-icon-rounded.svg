@@ -1,0 +1,40 @@
+<svg
+  width="1024"
+  height="1024"
+  viewBox="0 0 1024 1024"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+>
+  <defs>
+    <clipPath id="bgClip">
+      <rect
+        x="97.5238095"
+        y="97.5238095"
+        width="828.952381"
+        height="828.952381"
+        rx="194.2857143"
+      />
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#bgClip)">
+    <rect
+      x="97.5238095"
+      y="97.5238095"
+      width="828.952381"
+      height="828.952381"
+      rx="194.2857143"
+      fill="#FFFFFF"
+    />
+    <image
+      x="95.7217391"
+      y="95.7217391"
+      width="832.5565217"
+      height="832.5565217"
+      preserveAspectRatio="xMidYMid meet"
+      href="icon.png"
+      xlink:href="icon.png"
+    />
+  </g>
+</svg>

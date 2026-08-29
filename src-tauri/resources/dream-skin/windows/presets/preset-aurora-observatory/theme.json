@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "preset-aurora-observatory",
+  "name": "Aurora Observatory",
+  "brandSubtitle": "CODEXTOOL NIGHT LAB",
+  "tagline": "A quiet observatory for deep work.",
+  "projectPrefix": "Open workspace · ",
+  "projectLabel": "◉  Open workspace",
+  "statusText": "AURORA SYSTEM ONLINE",
+  "quote": "BUILD BEYOND THE HORIZON",
+  "image": "aurora-observatory.png",
+  "appearance": "dark",
+  "art": { "focusX": 0.78, "focusY": 0.48, "safeArea": "left", "taskMode": "ambient" },
+  "colors": {
+    "background": "#030a1d", "panel": "#08162f", "panelAlt": "#10254a",
+    "accent": "#22d3ee", "accentAlt": "#60a5fa", "secondary": "#4f46e5",
+    "highlight": "#a855f7", "text": "#e6f7ff", "muted": "#91b9d4",
+    "line": "rgba(34, 211, 238, .26)"
+  },
+  "promoTitle": "CodexTool Skin",
+  "promoSub": "Aurora Observatory",
+  "promoUrl": "https://github.com/SUWJTech/CodexTool"
+}

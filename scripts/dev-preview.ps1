@@ -1,0 +1,62 @@
+$ErrorActionPreference = "Stop"
+
+$repoRoot = Split-Path -Parent $PSScriptRoot
+$devRoot = Join-Path $repoRoot ".dev-runtime"
+$appDataDir = Join-Path $devRoot "app-data"
+$codexDir = Join-Path $devRoot "codex"
+
+New-Item -ItemType Directory -Force -Path $appDataDir | Out-Null
+New-Item -ItemType Directory -Force -Path $codexDir | Out-Null
+
+function Copy-IfMissing {
+    param(
+        [Parameter(Mandatory = $true)][string]$Source,
+        [Parameter(Mandatory = $true)][string]$Destination
+    )
+
+    if (!(Test-Path -LiteralPath $Source) -or (Test-Path -LiteralPath $Destination)) {
+        return
+    }
+
+    $parent = Split-Path -Parent $Destination
+    if ($parent) {
+        New-Item -ItemType Directory -Force -Path $parent | Out-Null
+    }
+
+    Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
+}
+
+$prodCodexDir = Join-Path $env:USERPROFILE ".codex"
+Copy-IfMissing -Source (Join-Path $prodCodexDir "config.toml") -Destination (Join-Path $codexDir "config.toml")
+
+# Never seed the isolated preview with production account or auth snapshots.
+# OAuth refresh tokens can rotate, so using one copied token in two runtimes can
+# invalidate the other runtime. Existing isolated data is intentionally kept;
+# sign in inside the preview to create independent credentials.
+if (!(Test-Path -LiteralPath (Join-Path $appDataDir "accounts.json"))) {
+    Write-Host "Isolated preview account library is empty; sign in inside the preview app."
+}
+
+$env:CODEXTOOL_DEV_DATA_DIR = $appDataDir
+$env:CODEXTOOL_DEV_CODEX_DIR = $codexDir
+
+$cargoBin = Join-Path $env:USERPROFILE ".cargo\\bin"
+if (Test-Path -LiteralPath $cargoBin) {
+    $env:PATH = "$cargoBin;$env:PATH"
+}
+
+$rustToolchainBin = Join-Path $env:USERPROFILE ".rustup\\toolchains\\stable-x86_64-pc-windows-msvc\\bin"
+if (Test-Path -LiteralPath $rustToolchainBin) {
+    $env:PATH = "$rustToolchainBin;$env:PATH"
+    $rustcBin = Join-Path $rustToolchainBin "rustc.exe"
+    if (Test-Path -LiteralPath $rustcBin) {
+        $env:RUSTC = $rustcBin
+    }
+}
+
+Write-Host "开发预览将使用隔离目录:"
+Write-Host ("  app data: {0}" -f $appDataDir)
+Write-Host ("  codex dir: {0}" -f $codexDir)
+
+Set-Location $repoRoot
+npm run tauri -- dev

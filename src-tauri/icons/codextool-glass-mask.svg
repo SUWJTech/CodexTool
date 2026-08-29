@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254">
+  <defs>
+    <clipPath id="glassTileClip">
+      <rect x="76" y="74" width="1102" height="1068" rx="185" />
+    </clipPath>
+  </defs>
+  <image href="codextool-glass-source.png" x="0" y="0" width="1254" height="1254" clip-path="url(#glassTileClip)" />
+</svg>

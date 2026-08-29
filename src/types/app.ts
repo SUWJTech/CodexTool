@@ -1,0 +1,313 @@
+import type { AppLocale } from "../i18n/catalog";
+
+export type UsageWindow = {
+  usedPercent: number;
+  windowSeconds: number;
+  resetAt: number | null;
+};
+
+export type CreditSnapshot = {
+  hasCredits: boolean;
+  unlimited: boolean;
+  balance: string | null;
+};
+
+export type ResetCredit = {
+  grantedAt: number | null;
+  expiresAt: number | null;
+};
+
+export type ResetCreditsSnapshot = {
+  availableCount: number | null;
+  credits: ResetCredit[];
+};
+
+export type UsageSnapshot = {
+  fetchedAt: number;
+  planType: string | null;
+  fiveHour: UsageWindow | null;
+  oneWeek: UsageWindow | null;
+  credits: CreditSnapshot | null;
+  resetCredits: ResetCreditsSnapshot | null;
+};
+
+export type CodexTokenTotals = {
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+  reasoningOutputTokens: number;
+  totalTokens: number;
+};
+
+export type CodexTokenSessionUsage = {
+  startedAt: number | null;
+  updatedAt: number;
+  total: CodexTokenTotals;
+};
+
+export type CodexTokenUsageSnapshot = {
+  updatedAt: number;
+  sourcePathCount: number;
+  failedPathCount: number;
+  unresolvedForkCount: number;
+  unresolvedUsageEventCount: number;
+  eventCount: number;
+  last24h: CodexTokenTotals;
+  last3d: CodexTokenTotals;
+  last7d: CodexTokenTotals;
+  last30d: CodexTokenTotals;
+  latestSession: CodexTokenSessionUsage | null;
+};
+
+export type CodexBudgetAlert = "none" | "ok" | "warning" | "danger";
+
+export type CodexProjectCostBreakdown = {
+  projectPath: string;
+  projectName: string;
+  sessionCount: number;
+  promptCount: number;
+  eventCount: number;
+  total: CodexTokenTotals;
+  costUsd: number;
+  lastAt: number | null;
+};
+
+export type CodexSessionCostBreakdown = {
+  sessionId: string;
+  parentSessionId: string | null;
+  projectPath: string;
+  projectName: string;
+  startedAt: number | null;
+  updatedAt: number | null;
+  durationSeconds: number | null;
+  promptCount: number;
+  eventCount: number;
+  model: string;
+  total: CodexTokenTotals;
+  costUsd: number;
+  sourcePath: string;
+};
+
+export type DeleteCodexSessionResult = {
+  sessionId: string;
+  deletedPath: string;
+};
+
+export type CodexHourlyCostBucket = {
+  weekday: number;
+  hour: number;
+  calls: number;
+  tokens: number;
+  costUsd: number;
+};
+
+export type CodexPromptCostBreakdown = {
+  sessionId: string;
+  projectPath: string;
+  projectName: string;
+  timestamp: number;
+  model: string;
+  promptPreview: string;
+  promptChars: number;
+  total: CodexTokenTotals;
+  costUsd: number;
+  sourcePath: string;
+};
+
+export type CodexCostAnalyticsSnapshot = {
+  updatedAt: number;
+  pricingSource: string;
+  sourcePathCount: number;
+  failedPathCount: number;
+  unresolvedForkCount: number;
+  unresolvedUsageEventCount: number;
+  eventCount: number;
+  total: CodexTokenTotals;
+  totalCostUsd: number;
+  localTotalCostUsd: number;
+  last7d: CodexTokenTotals;
+  last7dCostUsd: number;
+  localLast7dCostUsd: number;
+  budgetPeriodCostUsd: number;
+  localBudgetPeriodCostUsd: number;
+  costSource: "local_estimate" | string;
+  costSourceUpdatedAt: number | null;
+  costSourceError: string | null;
+  weeklyBudgetUsd: number | null;
+  weeklyBudgetPercent: number | null;
+  weeklyBudgetAlert: CodexBudgetAlert;
+  projects: CodexProjectCostBreakdown[];
+  sessions: CodexSessionCostBreakdown[];
+  heatmap: CodexHourlyCostBucket[];
+  topPrompts: CodexPromptCostBreakdown[];
+};
+
+export type CodexCostAnalyticsProgress = {
+  stage: "scanning" | "official" | "caching" | "complete" | string;
+  processedFiles: number;
+  totalFiles: number;
+  percent: number;
+  currentPath: string | null;
+};
+
+export type AccountSourceKind = "chatgpt" | "relay";
+
+export type AccountSummary = {
+  id: string;
+  label: string;
+  sourceKind: AccountSourceKind;
+  email: string | null;
+  accountKey: string;
+  accountId: string;
+  planType: string | null;
+  subscriptionActiveUntil: number | null;
+  apiBaseUrl: string | null;
+  modelName: string | null;
+  balanceText: string | null;
+  profileAuthReady: boolean;
+  profileConfigReady: boolean;
+  profileIntegrityError: string | null;
+  profileLastValidatedAt: number | null;
+  profileLastValidationError: string | null;
+  addedAt: number;
+  updatedAt: number;
+  usage: UsageSnapshot | null;
+  usageError: string | null;
+  authRefreshBlocked: boolean;
+  authRefreshError: string | null;
+  isCurrent: boolean;
+};
+
+export type SwitchAccountResult = {
+  accountId: string;
+  noOp?: boolean;
+  launchedAppPath: string | null;
+  usedFallbackCli: boolean;
+  opencodeSynced: boolean;
+  opencodeSyncError: string | null;
+  opencodeDesktopRestarted: boolean;
+  opencodeDesktopRestartError: string | null;
+  restartedEditorApps: EditorAppId[];
+  editorRestartError: string | null;
+  providerSyncError: string | null;
+};
+
+export type PreparedOauthLogin = {
+  authUrl: string;
+  redirectUri: string;
+};
+
+export type OauthCallbackFinishedEvent = {
+  result: ImportAccountsResult | null;
+  error: string | null;
+};
+
+export type AuthJsonImportInput = {
+  source: string;
+  content: string;
+  label: string | null;
+};
+
+export type CreateApiAccountInput = {
+  label: string;
+  baseUrl: string;
+  apiKey: string;
+  modelName: string;
+  forceSave: boolean;
+};
+
+export type TestApiAccountConnectionInput = {
+  label: string;
+  baseUrl: string;
+  apiKey: string;
+  modelName: string;
+};
+
+export type TestApiAccountConnectionResult = {
+  ok: boolean;
+  balanceText: string | null;
+  message: string;
+};
+
+export type ImportAccountFailure = {
+  source: string;
+  error: string;
+};
+
+export type ImportAccountsResult = {
+  totalCount: number;
+  importedCount: number;
+  updatedCount: number;
+  failures: ImportAccountFailure[];
+};
+
+export type Notice = {
+  type: "ok" | "error" | "info";
+  message: string;
+};
+
+export type PendingUpdateInfo = {
+  currentVersion: string;
+  version: string;
+  body?: string;
+  date?: string;
+  releaseUrl?: string;
+  manualOnly?: boolean;
+  debugPreview?: boolean;
+};
+
+export type ThemeMode = "light" | "dark";
+
+export type TrayUsageDisplayMode = "remaining" | "used" | "fiveHourRemaining" | "oneWeekRemaining" | "hidden";
+export type MacosTrayTextIconStyle = "codexTools" | "progressRing";
+export type WindowsTrayIconStyle =
+  | "gradientNumberPlate"
+  | "gradientNumberCard"
+  | "gradientNumber"
+  | "numberProgressBar"
+  | "logoProgressRing";
+export type WindowsTaskbarWidgetPlacement = "embedded" | "left" | "hidden";
+
+export type EditorAppId =
+  | "vscode"
+  | "vscodeInsiders"
+  | "cursor"
+  | "antigravity"
+  | "kiro"
+  | "trae"
+  | "qoder";
+
+export type InstalledEditorApp = {
+  id: EditorAppId;
+  label: string;
+};
+
+export type AppSettings = {
+  launchAtStartup: boolean;
+  trayUsageDisplayMode: TrayUsageDisplayMode;
+  trayUsageTitleShowWindowLabels: boolean;
+  macosTrayTextIconStyle: MacosTrayTextIconStyle;
+  windowsTrayIconStyle: WindowsTrayIconStyle;
+  trayQuotaIconVisible: boolean;
+  macosTrayLogoRingShowPercentage: boolean;
+  windowsTaskbarWidgetPlacement: WindowsTaskbarWidgetPlacement;
+  windowsQuotaOnboardingCompleted: boolean;
+  macosQuotaOnboardingCompleted: boolean;
+  launchCodexAfterSwitch: boolean;
+  smartSwitchIncludeApi: boolean;
+  launchCodexAsAdmin: boolean;
+  codexLaunchPath: string | null;
+  syncOpencodeOpenaiAuth: boolean;
+  restartOpencodeDesktopOnSwitch: boolean;
+  restartEditorsOnSwitch: boolean;
+  restartEditorTargets: EditorAppId[];
+  codexAnalyticsWeeklyBudgetUsd: number | null;
+  locale: AppLocale;
+  skippedUpdateVersion: string | null;
+};
+
+export type UpdateSettingsOptions = {
+  silent?: boolean;
+  keepInteractive?: boolean;
+  throwOnError?: boolean;
+};

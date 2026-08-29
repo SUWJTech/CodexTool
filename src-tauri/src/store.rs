@@ -1,0 +1,1325 @@
+use std::fs;
+use std::io::Write;
+use std::path::Path;
+use std::path::PathBuf;
+
+use uuid::Uuid;
+
+#[cfg(feature = "desktop")]
+use tauri::AppHandle;
+
+use crate::app_paths;
+use crate::auth::account_group_key;
+use crate::auth::account_variant_key;
+use crate::auth::current_auth_account_key;
+use crate::auth::extract_auth;
+use crate::auth::has_newer_auth_refresh_snapshot;
+use crate::auth::read_current_codex_auth_optional;
+use crate::auth::write_active_codex_auth;
+use crate::models::align_zero_five_hour_usage_with_weekly;
+use crate::models::dedupe_account_variants;
+use crate::models::AccountSourceKind;
+use crate::models::AccountsStore;
+use crate::models::StoredAccount;
+use crate::profile_files;
+use crate::utils::now_unix_seconds;
+use crate::utils::private_create_new_options;
+use crate::utils::set_private_permissions;
+use crate::utils::short_account;
+
+const LAST_GOOD_BACKUP_FILE_NAME: &str = "accounts.json.last-good.json";
+const PREVIOUS_GOOD_BACKUP_FILE_NAME: &str = "accounts.json.prev-good.json";
+
+#[derive(Clone)]
+struct RecoveryCandidate {
+    source: String,
+    modified_at: i64,
+    store: AccountsStore,
+}
+
+#[cfg(feature = "desktop")]
+pub(crate) fn load_store(app: &AppHandle) -> Result<AccountsStore, String> {
+    load_store_from_path(&account_store_path(app)?)
+}
+
+#[cfg(feature = "desktop")]
+pub(crate) fn save_store(app: &AppHandle, store: &AccountsStore) -> Result<(), String> {
+    save_store_to_path(&account_store_path(app)?, store)
+}
+
+/// 启动时自动同步当前登录账号：
+/// 若本机已有 `~/.codex/auth.json` 且相同稳定账号身份不在列表中，则自动写入存储。
+/// 套餐是可变化状态，不能仅因 auth 仍携带旧套餐而创建一个没有缓存用量的新变体。
+#[cfg(feature = "desktop")]
+pub(crate) fn sync_current_auth_account_on_startup(app: &AppHandle) -> Result<(), String> {
+    sync_current_auth_account_on_startup_in_path(&account_store_path(app)?)
+}
+
+pub(crate) fn load_store_from_path(path: &Path) -> Result<AccountsStore, String> {
+    if !path.exists() {
+        return Ok(AccountsStore::default());
+    }
+
+    let raw = fs::read_to_string(path)
+        .map_err(|e| format!("读取账号存储文件失败 {}: {e}", path.display()))?;
+
+    match serde_json::from_str::<AccountsStore>(&raw) {
+        Ok(store) => Ok(normalize_loaded_store(path, store)),
+        Err(primary_err) => {
+            if let Some((recovered, recovered_sources)) =
+                recover_store_from_available_sources(path, &raw)
+            {
+                log::warn!(
+                    "账号存储文件格式无效，已从可恢复数据重建 {}: {}; 来源: {}",
+                    path.display(),
+                    primary_err,
+                    recovered_sources.join(", ")
+                );
+                if let Err(backup_err) = backup_corrupted_store_file(path, &raw) {
+                    log::warn!(
+                        "重建前备份损坏账号存储文件失败 {}: {}",
+                        path.display(),
+                        backup_err
+                    );
+                }
+                if let Err(repair_err) = write_store_file(path, &recovered) {
+                    return Err(format!(
+                        "账号存储文件恢复后重写失败 {}: {}; {}",
+                        path.display(),
+                        primary_err,
+                        repair_err
+                    ));
+                }
+                return Ok(normalize_loaded_store(path, recovered));
+            }
+
+            if let Err(backup_err) = backup_corrupted_store_file(path, &raw) {
+                log::warn!(
+                    "账号存储文件损坏，备份失败 {}: {}",
+                    path.display(),
+                    backup_err
+                );
+            }
+
+            let fallback = AccountsStore::default();
+            if let Err(repair_err) = write_store_file(path, &fallback) {
+                return Err(format!(
+                    "账号存储文件格式无效且修复失败 {}: {}; {}",
+                    path.display(),
+                    primary_err,
+                    repair_err
+                ));
+            }
+
+            log::warn!(
+                "账号存储文件格式无效，已重建默认存储 {}: {}",
+                path.display(),
+                primary_err
+            );
+            Ok(normalize_loaded_store(path, fallback))
+        }
+    }
+}
+
+pub(crate) fn save_store_to_path(path: &Path, store: &AccountsStore) -> Result<(), String> {
+    write_store_file(path, store)
+}
+
+pub(crate) fn sync_current_auth_account_on_startup_in_path(path: &Path) -> Result<(), String> {
+    let auth_json = match read_current_codex_auth_optional()? {
+        Some(value) => value,
+        None => return Ok(()),
+    };
+
+    sync_current_auth_account_on_startup_with_auth(path, auth_json)
+}
+
+fn sync_current_auth_account_on_startup_with_auth(
+    path: &Path,
+    auth_json: serde_json::Value,
+) -> Result<(), String> {
+    let extracted = match extract_auth(&auth_json) {
+        Ok(value) => value,
+        Err(err) => {
+            log::warn!("跳过启动自动导入当前账号: {err}");
+            return Ok(());
+        }
+    };
+    let now = now_unix_seconds();
+
+    let mut store = load_store_from_path(path)?;
+    let extracted_account_key = account_group_key(&extracted.principal_id, &extracted.account_id);
+    let has_matching_account = store
+        .accounts
+        .iter()
+        .any(|account| account.account_key() == extracted_account_key);
+    if has_matching_account {
+        let extracted_variant_key = account_variant_key(
+            &extracted.principal_id,
+            &extracted.account_id,
+            extracted.plan_type.as_deref(),
+        );
+        let cached_account_id = store
+            .accounts
+            .iter()
+            .filter(|account| {
+                account.account_key() == extracted_account_key && account.usage.is_some()
+            })
+            .max_by_key(|account| {
+                account
+                    .usage
+                    .as_ref()
+                    .map(|usage| usage.fetched_at)
+                    .unwrap_or_default()
+            })
+            .map(|account| account.id.clone());
+        let sync_target_account_id = cached_account_id.clone().or_else(|| {
+            store
+                .accounts
+                .iter()
+                .filter(|account| account.account_key() == extracted_account_key)
+                .max_by_key(|account| account.updated_at)
+                .map(|account| account.id.clone())
+        });
+        let empty_current_variant_ids = store
+            .accounts
+            .iter()
+            .filter(|account| {
+                account.account_key() == extracted_account_key
+                    && account.variant_key() == extracted_variant_key
+                    && account.usage.is_none()
+            })
+            .map(|account| account.id.clone())
+            .collect::<Vec<_>>();
+        let mut changed = false;
+
+        if let Some(sync_target_account_id) = sync_target_account_id {
+            if let Some(account) = store
+                .accounts
+                .iter_mut()
+                .find(|account| account.id == sync_target_account_id)
+            {
+                if has_newer_auth_refresh_snapshot(&auth_json, &account.auth_json) {
+                    account.auth_json = auth_json.clone();
+                    account.auth_refresh_blocked = false;
+                    account.auth_refresh_error = None;
+                    account.updated_at = now;
+                    account.principal_id = Some(extracted.principal_id.clone());
+                    if extracted.email.is_some() {
+                        account.email = extracted.email.clone();
+                    }
+                    if account.usage.is_none() {
+                        account.plan_type = extracted.plan_type.clone();
+                    }
+                    changed = true;
+                }
+            }
+        }
+
+        if let Some(cached_account_id) = cached_account_id {
+            if !empty_current_variant_ids.is_empty() {
+                store.accounts.retain(|account| {
+                    !empty_current_variant_ids
+                        .iter()
+                        .any(|account_id| account_id == &account.id)
+                });
+                if store
+                    .settings
+                    .active_account_id
+                    .as_ref()
+                    .is_some_and(|active_id| empty_current_variant_ids.contains(active_id))
+                {
+                    store.settings.active_account_id = Some(cached_account_id);
+                }
+                changed = true;
+            }
+        }
+
+        if changed {
+            save_store_to_path(path, &store)?;
+        }
+        return Ok(());
+    }
+
+    let label = extracted
+        .email
+        .clone()
+        .unwrap_or_else(|| format!("Codex {}", short_account(&extracted.account_id)));
+
+    let stored = StoredAccount {
+        id: Uuid::new_v4().to_string(),
+        label,
+        source_kind: Default::default(),
+        principal_id: Some(extracted.principal_id),
+        email: extracted.email,
+        account_id: extracted.account_id,
+        plan_type: extracted.plan_type,
+        auth_json,
+        api_base_url: None,
+        api_key: None,
+        model_name: None,
+        balance_text: None,
+        profile_auth_path: None,
+        profile_config_path: None,
+        profile_auth_ready: false,
+        profile_config_ready: false,
+        profile_integrity_error: None,
+        profile_last_validated_at: None,
+        profile_last_validation_error: None,
+        added_at: now,
+        updated_at: now,
+        usage: None,
+        usage_error: None,
+        auth_refresh_blocked: false,
+        auth_refresh_error: None,
+    };
+    let mut stored = stored;
+    let _ = profile_files::sync_account_profile_in_store_path(path, &mut stored);
+    store.accounts.push(stored);
+    save_store_to_path(path, &store)?;
+    Ok(())
+}
+
+pub(crate) fn update_account_group_refresh_state_in_path(
+    path: &Path,
+    account_key: &str,
+    auth_json: Option<&serde_json::Value>,
+    auth_refresh_blocked: bool,
+    auth_refresh_error: Option<&str>,
+    updated_at: i64,
+    sync_current_auth: bool,
+) -> Result<bool, String> {
+    let mut store = load_store_from_path(path)?;
+    let mut changed = false;
+
+    for account in store
+        .accounts
+        .iter_mut()
+        .filter(|account| account.account_key() == account_key)
+    {
+        if let Some(value) = auth_json {
+            account.auth_json = value.clone();
+        }
+        account.auth_refresh_blocked = auth_refresh_blocked;
+        account.auth_refresh_error = auth_refresh_error.map(ToString::to_string);
+        account.updated_at = updated_at;
+        changed = true;
+    }
+
+    if !changed {
+        return Ok(false);
+    }
+
+    save_store_to_path(path, &store)?;
+
+    if sync_current_auth
+        && !auth_refresh_blocked
+        && auth_json.is_some()
+        && current_auth_account_key().as_deref() == Some(account_key)
+    {
+        if let Some(auth_json) = auth_json {
+            write_active_codex_auth(auth_json)?;
+        }
+    }
+
+    Ok(true)
+}
+
+#[cfg(feature = "desktop")]
+fn account_store_path(app: &AppHandle) -> Result<PathBuf, String> {
+    let dir = app_paths::app_data_dir(app)?;
+    Ok(account_store_path_from_data_dir(&dir))
+}
+
+pub(crate) fn account_store_path_from_data_dir(data_dir: &Path) -> PathBuf {
+    data_dir.join("accounts.json")
+}
+
+fn write_store_file(path: &Path, store: &AccountsStore) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("无法解析存储目录 {}", path.display()))?;
+    fs::create_dir_all(parent)
+        .map_err(|e| format!("创建存储目录失败 {}: {e}", parent.display()))?;
+
+    let serialized =
+        serde_json::to_string_pretty(store).map_err(|e| format!("序列化账号存储失败: {e}"))?;
+    write_file_atomically(path, serialized.as_bytes())?;
+    if let Err(err) = write_store_shadow_backups(path, serialized.as_bytes()) {
+        log::warn!("写入账号存储滚动备份失败 {}: {}", path.display(), err);
+    }
+    Ok(())
+}
+
+fn normalize_loaded_store(path: &Path, mut store: AccountsStore) -> AccountsStore {
+    let mut changed = false;
+
+    #[cfg(target_os = "windows")]
+    if normalize_legacy_windows_usage_mode(&mut store.settings) {
+        log::warn!(
+            "Windows 历史额度显示模式已迁移为一周剩余 {}",
+            path.display()
+        );
+        changed = true;
+    }
+
+    #[cfg(target_os = "windows")]
+    if normalize_windows_onboarding_usage_mode(&mut store.settings) {
+        log::info!("Windows 首次额度设置默认使用一周剩余 {}", path.display());
+        changed = true;
+    }
+
+    for account in &mut store.accounts {
+        if account
+            .usage
+            .as_mut()
+            .is_some_and(align_zero_five_hour_usage_with_weekly)
+        {
+            changed = true;
+        }
+
+        if account
+            .principal_id
+            .as_deref()
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .is_none()
+        {
+            account.principal_id = Some(account.principal_key());
+            changed = true;
+        }
+
+        if profile_files::ensure_profile_metadata(path, account) {
+            changed = true;
+        }
+        if repair_missing_profile_files(path, account) {
+            changed = true;
+        }
+    }
+
+    if dedupe_account_variants(&mut store.accounts) {
+        log::warn!("账号存储存在重复账号变体，已自动合并 {}", path.display());
+        changed = true;
+    }
+
+    if changed {
+        if let Err(repair_err) = write_store_file(path, &store) {
+            log::warn!(
+                "修正账号存储后重写文件失败 {}: {}",
+                path.display(),
+                repair_err
+            );
+        }
+    }
+
+    store
+}
+
+#[cfg(any(target_os = "windows", test))]
+fn normalize_legacy_windows_usage_mode(settings: &mut crate::models::AppSettings) -> bool {
+    if settings.tray_usage_display_mode != crate::models::TrayUsageDisplayMode::Hidden {
+        return false;
+    }
+
+    settings.tray_usage_display_mode = crate::models::TrayUsageDisplayMode::OneWeekRemaining;
+    true
+}
+
+#[cfg(any(target_os = "windows", test))]
+fn normalize_windows_onboarding_usage_mode(settings: &mut crate::models::AppSettings) -> bool {
+    if settings.windows_quota_onboarding_completed
+        || settings.tray_usage_display_mode == crate::models::TrayUsageDisplayMode::OneWeekRemaining
+    {
+        return false;
+    }
+
+    settings.tray_usage_display_mode = crate::models::TrayUsageDisplayMode::OneWeekRemaining;
+    true
+}
+
+fn repair_missing_profile_files(path: &Path, account: &mut StoredAccount) -> bool {
+    if account.profile_auth_ready && account.profile_config_ready {
+        return false;
+    }
+    if !can_sync_profile(account) {
+        return false;
+    }
+
+    match profile_files::sync_account_profile_in_store_path(path, account) {
+        Ok(()) => true,
+        Err(error) => {
+            log::warn!("自动修复账号 profile 文件失败 {}: {}", account.id, error);
+            false
+        }
+    }
+}
+
+fn can_sync_profile(account: &StoredAccount) -> bool {
+    match &account.source_kind {
+        AccountSourceKind::Chatgpt => true,
+        AccountSourceKind::Relay => {
+            has_text(account.api_base_url.as_deref())
+                && has_text(account.api_key.as_deref())
+                && has_text(account.model_name.as_deref())
+        }
+    }
+}
+
+fn has_text(value: Option<&str>) -> bool {
+    value
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+        .is_some()
+}
+
+fn write_file_atomically(path: &Path, contents: &[u8]) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("无法解析存储目录 {}", path.display()))?;
+    let temp_path = parent.join(format!(
+        ".{}.tmp-{}",
+        path.file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("accounts.json"),
+        Uuid::new_v4()
+    ));
+
+    let write_result = (|| -> Result<(), String> {
+        let mut temp_file = private_create_new_options()
+            .open(&temp_path)
+            .map_err(|e| format!("创建临时存储文件失败 {}: {e}", temp_path.display()))?;
+        temp_file
+            .write_all(contents)
+            .map_err(|e| format!("写入临时存储文件失败 {}: {e}", temp_path.display()))?;
+        temp_file
+            .sync_all()
+            .map_err(|e| format!("刷新临时存储文件失败 {}: {e}", temp_path.display()))?;
+        drop(temp_file);
+        set_private_permissions(&temp_path);
+
+        #[cfg(target_family = "unix")]
+        {
+            fs::rename(&temp_path, path).map_err(|e| {
+                format!(
+                    "替换账号存储文件失败 {} -> {}: {e}",
+                    temp_path.display(),
+                    path.display()
+                )
+            })?;
+
+            let parent_dir = fs::File::open(parent)
+                .map_err(|e| format!("打开存储目录失败 {}: {e}", parent.display()))?;
+            parent_dir
+                .sync_all()
+                .map_err(|e| format!("刷新存储目录失败 {}: {e}", parent.display()))?;
+        }
+
+        #[cfg(not(target_family = "unix"))]
+        {
+            if path.exists() {
+                fs::remove_file(path)
+                    .map_err(|e| format!("移除旧账号存储文件失败 {}: {e}", path.display()))?;
+            }
+            fs::rename(&temp_path, path).map_err(|e| {
+                format!(
+                    "替换账号存储文件失败 {} -> {}: {e}",
+                    temp_path.display(),
+                    path.display()
+                )
+            })?;
+        }
+
+        set_private_permissions(path);
+        Ok(())
+    })();
+
+    if write_result.is_err() {
+        let _ = fs::remove_file(&temp_path);
+    }
+
+    write_result
+}
+
+fn write_store_shadow_backups(path: &Path, contents: &[u8]) -> Result<(), String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("无法解析存储目录 {}", path.display()))?;
+    fs::create_dir_all(parent)
+        .map_err(|e| format!("创建存储目录失败 {}: {e}", parent.display()))?;
+
+    let latest_backup = parent.join(LAST_GOOD_BACKUP_FILE_NAME);
+    let previous_backup = parent.join(PREVIOUS_GOOD_BACKUP_FILE_NAME);
+
+    if latest_backup.exists() {
+        let latest_contents = fs::read(&latest_backup)
+            .map_err(|e| format!("读取最新备份失败 {}: {e}", latest_backup.display()))?;
+        fs::write(&previous_backup, latest_contents)
+            .map_err(|e| format!("写入上一个备份失败 {}: {e}", previous_backup.display()))?;
+        set_private_permissions(&previous_backup);
+    }
+
+    fs::write(&latest_backup, contents)
+        .map_err(|e| format!("写入最新备份失败 {}: {e}", latest_backup.display()))?;
+    set_private_permissions(&latest_backup);
+    Ok(())
+}
+
+fn recover_store_from_available_sources(
+    path: &Path,
+    raw: &str,
+) -> Option<(AccountsStore, Vec<String>)> {
+    let candidates = collect_recovery_candidates(path, raw);
+    if candidates.is_empty() {
+        return None;
+    }
+
+    let best = candidates.iter().max_by_key(|candidate| {
+        (
+            usize::from(!candidate.store.accounts.is_empty()),
+            candidate.store.accounts.len(),
+            candidate.modified_at,
+        )
+    })?;
+
+    let mut merged_accounts = Vec::new();
+    let mut recovered_sources = Vec::new();
+    for candidate in &candidates {
+        if !candidate.store.accounts.is_empty() {
+            recovered_sources.push(candidate.source.clone());
+        }
+        merged_accounts.extend(candidate.store.accounts.clone());
+    }
+    dedupe_account_variants(&mut merged_accounts);
+
+    if merged_accounts.is_empty() {
+        return None;
+    }
+
+    let mut recovered = best.store.clone();
+    recovered.accounts = merged_accounts;
+    Some((recovered, recovered_sources))
+}
+
+fn collect_recovery_candidates(path: &Path, raw: &str) -> Vec<RecoveryCandidate> {
+    let mut candidates = parse_store_candidates_from_text(
+        raw,
+        format!("{} (current damaged file)", path.display()),
+        file_modified_at(path),
+    );
+
+    let Some(parent) = path.parent() else {
+        return candidates;
+    };
+
+    let Ok(entries) = fs::read_dir(parent) else {
+        return candidates;
+    };
+
+    for entry in entries.flatten() {
+        let candidate_path = entry.path();
+        if candidate_path == path || !candidate_path.is_file() {
+            continue;
+        }
+        if !is_store_backup_candidate(&candidate_path) {
+            continue;
+        }
+
+        let Ok(candidate_raw) = fs::read_to_string(&candidate_path) else {
+            continue;
+        };
+        candidates.extend(parse_store_candidates_from_text(
+            &candidate_raw,
+            candidate_path.display().to_string(),
+            file_modified_at(&candidate_path),
+        ));
+    }
+
+    candidates
+}
+
+fn parse_store_candidates_from_text(
+    raw: &str,
+    source: String,
+    modified_at: i64,
+) -> Vec<RecoveryCandidate> {
+    let mut candidates = Vec::new();
+
+    if let Ok(store) = serde_json::from_str::<AccountsStore>(raw) {
+        candidates.push(RecoveryCandidate {
+            source,
+            modified_at,
+            store,
+        });
+        return candidates;
+    }
+
+    let mut stream = serde_json::Deserializer::from_str(raw).into_iter::<AccountsStore>();
+    let mut recovered_index = 0usize;
+    while let Some(result) = stream.next() {
+        match result {
+            Ok(store) => {
+                recovered_index += 1;
+                candidates.push(RecoveryCandidate {
+                    source: format!("{source}#{recovered_index}"),
+                    modified_at,
+                    store,
+                });
+            }
+            Err(_) => break,
+        }
+    }
+
+    if candidates.is_empty() {
+        if let Ok(accounts) = serde_json::from_str::<Vec<StoredAccount>>(raw) {
+            candidates.push(RecoveryCandidate {
+                source,
+                modified_at,
+                store: AccountsStore {
+                    version: 1,
+                    accounts,
+                    settings: Default::default(),
+                },
+            });
+        }
+    }
+
+    candidates
+}
+
+fn is_store_backup_candidate(path: &Path) -> bool {
+    let Some(name) = path.file_name().and_then(|value| value.to_str()) else {
+        return false;
+    };
+    name.starts_with("accounts.")
+        || name.starts_with("accounts.json.")
+        || name.starts_with(".accounts.json.tmp-")
+}
+
+fn file_modified_at(path: &Path) -> i64 {
+    fs::metadata(path)
+        .ok()
+        .and_then(|metadata| metadata.modified().ok())
+        .and_then(|time| {
+            time.duration_since(std::time::UNIX_EPOCH)
+                .ok()
+                .map(|duration| duration.as_secs() as i64)
+        })
+        .unwrap_or_default()
+}
+
+fn backup_corrupted_store_file(path: &Path, raw: &str) -> Result<PathBuf, String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("无法解析存储目录 {}", path.display()))?;
+    fs::create_dir_all(parent)
+        .map_err(|e| format!("创建存储目录失败 {}: {e}", parent.display()))?;
+
+    let backup_path = parent.join(format!("accounts.corrupt-{}.json", now_unix_seconds()));
+    fs::write(&backup_path, raw)
+        .map_err(|e| format!("写入损坏备份文件失败 {}: {e}", backup_path.display()))?;
+    set_private_permissions(&backup_path);
+    Ok(backup_path)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::load_store_from_path;
+    use super::normalize_legacy_windows_usage_mode;
+    use super::normalize_windows_onboarding_usage_mode;
+    use super::save_store_to_path;
+    use super::sync_current_auth_account_on_startup_with_auth;
+    use super::LAST_GOOD_BACKUP_FILE_NAME;
+    use super::PREVIOUS_GOOD_BACKUP_FILE_NAME;
+    use crate::models::AccountSourceKind;
+    use crate::models::AccountsStore;
+    use crate::models::AppSettings;
+    use crate::models::StoredAccount;
+    use crate::models::TrayUsageDisplayMode;
+    use crate::models::UsageSnapshot;
+    use crate::models::UsageWindow;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use base64::Engine;
+    use serde_json::json;
+    use std::fs;
+    use std::path::PathBuf;
+    use uuid::Uuid;
+
+    fn temp_dir() -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("codextool-store-test-{}", Uuid::new_v4()));
+        fs::create_dir_all(&dir).expect("create temp dir");
+        dir
+    }
+
+    fn sample_store(label: &str, account_id: &str, updated_at: i64) -> AccountsStore {
+        AccountsStore {
+            version: 1,
+            accounts: vec![StoredAccount {
+                id: format!("id-{label}"),
+                label: label.to_string(),
+                source_kind: Default::default(),
+                principal_id: Some(format!("{label}@example.com")),
+                email: Some(format!("{label}@example.com")),
+                account_id: account_id.to_string(),
+                plan_type: Some("team".to_string()),
+                auth_json: json!({ "kind": label }),
+                api_base_url: None,
+                api_key: None,
+                model_name: None,
+                balance_text: None,
+                profile_auth_path: None,
+                profile_config_path: None,
+                profile_auth_ready: false,
+                profile_config_ready: false,
+                profile_integrity_error: None,
+                profile_last_validated_at: None,
+                profile_last_validation_error: None,
+                added_at: updated_at - 1,
+                updated_at,
+                usage: None,
+                usage_error: None,
+                auth_refresh_blocked: false,
+                auth_refresh_error: None,
+            }],
+            settings: Default::default(),
+        }
+    }
+
+    #[test]
+    fn windows_legacy_hidden_usage_mode_migrates_once() {
+        let mut settings = AppSettings {
+            tray_usage_display_mode: TrayUsageDisplayMode::Hidden,
+            ..AppSettings::default()
+        };
+
+        assert!(normalize_legacy_windows_usage_mode(&mut settings));
+        assert_eq!(
+            settings.tray_usage_display_mode,
+            TrayUsageDisplayMode::OneWeekRemaining
+        );
+        assert!(!normalize_legacy_windows_usage_mode(&mut settings));
+    }
+
+    #[test]
+    fn incomplete_windows_onboarding_defaults_to_one_week_remaining() {
+        let mut settings = AppSettings {
+            tray_usage_display_mode: TrayUsageDisplayMode::Remaining,
+            windows_quota_onboarding_completed: false,
+            ..AppSettings::default()
+        };
+
+        assert!(normalize_windows_onboarding_usage_mode(&mut settings));
+        assert_eq!(
+            settings.tray_usage_display_mode,
+            TrayUsageDisplayMode::OneWeekRemaining
+        );
+        assert!(!normalize_windows_onboarding_usage_mode(&mut settings));
+    }
+
+    #[test]
+    fn completed_windows_onboarding_preserves_selected_usage_mode() {
+        let mut settings = AppSettings {
+            tray_usage_display_mode: TrayUsageDisplayMode::Remaining,
+            windows_quota_onboarding_completed: true,
+            ..AppSettings::default()
+        };
+
+        assert!(!normalize_windows_onboarding_usage_mode(&mut settings));
+        assert_eq!(
+            settings.tray_usage_display_mode,
+            TrayUsageDisplayMode::Remaining
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn loading_a_windows_store_persists_the_legacy_hidden_mode_migration() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("legacy-hidden", "workspace-hidden", 10);
+        store.settings.tray_usage_display_mode = TrayUsageDisplayMode::Hidden;
+        save_store_to_path(&store_path, &store).expect("save legacy hidden store");
+
+        let loaded = load_store_from_path(&store_path).expect("load migrated store");
+        assert_eq!(
+            loaded.settings.tray_usage_display_mode,
+            TrayUsageDisplayMode::OneWeekRemaining
+        );
+
+        let persisted: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&store_path).expect("read migrated store"))
+                .expect("parse migrated store");
+        assert_eq!(
+            persisted["settings"]["trayUsageDisplayMode"],
+            json!("oneWeekRemaining")
+        );
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn loading_a_windows_store_persists_the_onboarding_usage_default() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("onboarding-default", "workspace-onboarding", 10);
+        store.settings.tray_usage_display_mode = TrayUsageDisplayMode::Remaining;
+        store.settings.windows_quota_onboarding_completed = false;
+        save_store_to_path(&store_path, &store).expect("save incomplete onboarding store");
+
+        let loaded = load_store_from_path(&store_path).expect("load migrated store");
+        assert_eq!(
+            loaded.settings.tray_usage_display_mode,
+            TrayUsageDisplayMode::OneWeekRemaining
+        );
+
+        let persisted: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&store_path).expect("read migrated store"))
+                .expect("parse migrated store");
+        assert_eq!(
+            persisted["settings"]["trayUsageDisplayMode"],
+            json!("oneWeekRemaining")
+        );
+    }
+
+    fn usage_snapshot(plan_type: &str) -> UsageSnapshot {
+        UsageSnapshot {
+            fetched_at: 20,
+            plan_type: Some(plan_type.to_string()),
+            five_hour: Some(UsageWindow {
+                used_percent: 28.0,
+                window_seconds: 18_000,
+                reset_at: Some(30),
+            }),
+            one_week: Some(UsageWindow {
+                used_percent: 28.0,
+                window_seconds: 604_800,
+                reset_at: Some(40),
+            }),
+            credits: None,
+            reset_credits: None,
+        }
+    }
+
+    #[test]
+    fn loading_store_persists_zero_five_hour_placeholder_alignment() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("usage-placeholder", "workspace-usage", 10);
+        let mut usage = usage_snapshot("pro");
+        usage.five_hour.as_mut().unwrap().used_percent = 0.0;
+        usage.one_week.as_mut().unwrap().used_percent = 31.0;
+        store.accounts[0].usage = Some(usage);
+        save_store_to_path(&store_path, &store).expect("save placeholder store");
+
+        let loaded = load_store_from_path(&store_path).expect("load normalized store");
+        assert_eq!(
+            loaded.accounts[0]
+                .usage
+                .as_ref()
+                .and_then(|usage| usage.five_hour.as_ref())
+                .map(|window| window.used_percent),
+            Some(31.0)
+        );
+
+        let persisted: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(&store_path).expect("read normalized store"))
+                .expect("parse normalized store");
+        assert_eq!(
+            persisted["accounts"][0]["usage"]["fiveHour"]["usedPercent"],
+            31.0
+        );
+    }
+
+    fn chatgpt_auth(email: &str, account_id: &str, plan_type: &str) -> serde_json::Value {
+        chatgpt_auth_with_refresh_token(email, account_id, plan_type, "test-refresh-token", 10)
+    }
+
+    fn chatgpt_auth_with_refresh_token(
+        email: &str,
+        account_id: &str,
+        plan_type: &str,
+        refresh_token: &str,
+        last_refresh: i64,
+    ) -> serde_json::Value {
+        let header = URL_SAFE_NO_PAD.encode(br#"{"alg":"none","typ":"JWT"}"#);
+        let payload = URL_SAFE_NO_PAD.encode(
+            serde_json::to_vec(&json!({
+                "email": email,
+                "https://api.openai.com/auth": {
+                    "chatgpt_account_id": account_id,
+                    "chatgpt_plan_type": plan_type
+                }
+            }))
+            .expect("serialize token payload"),
+        );
+
+        json!({
+            "auth_mode": "chatgpt",
+            "last_refresh": last_refresh,
+            "tokens": {
+                "access_token": "test-access-token",
+                "id_token": format!("{header}.{payload}.signature"),
+                "account_id": account_id,
+                "refresh_token": refresh_token
+            }
+        })
+    }
+
+    #[test]
+    fn startup_sync_reuses_stable_account_when_auth_plan_is_stale() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("upgraded", "workspace-1", 10);
+        store.accounts[0].plan_type = Some("pro".to_string());
+        store.accounts[0].usage = Some(usage_snapshot("pro"));
+        store.accounts[0].auth_json = chatgpt_auth("upgraded@example.com", "workspace-1", "pro");
+        let original_id = store.accounts[0].id.clone();
+        save_store_to_path(&store_path, &store).expect("save account store");
+
+        sync_current_auth_account_on_startup_with_auth(
+            &store_path,
+            chatgpt_auth("upgraded@example.com", "workspace-1", "plus"),
+        )
+        .expect("sync stale plan auth");
+
+        let loaded = load_store_from_path(&store_path).expect("load synced store");
+        assert_eq!(loaded.accounts.len(), 1);
+        assert_eq!(loaded.accounts[0].id, original_id);
+        assert_eq!(
+            loaded.accounts[0].resolved_plan_type().as_deref(),
+            Some("pro")
+        );
+        assert_eq!(
+            loaded.accounts[0]
+                .usage
+                .as_ref()
+                .and_then(|usage| usage.five_hour.as_ref())
+                .map(|window| window.used_percent),
+            Some(28.0)
+        );
+    }
+
+    #[test]
+    fn startup_sync_adopts_newer_auth_and_clears_stale_refresh_block() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("upgraded", "workspace-1", 10);
+        store.accounts[0].usage = Some(usage_snapshot("pro"));
+        store.accounts[0].auth_json = chatgpt_auth_with_refresh_token(
+            "upgraded@example.com",
+            "workspace-1",
+            "pro",
+            "refresh-old",
+            10,
+        );
+        store.accounts[0].auth_refresh_blocked = true;
+        store.accounts[0].auth_refresh_error = Some("stale refresh failure".to_string());
+        let original_id = store.accounts[0].id.clone();
+        save_store_to_path(&store_path, &store).expect("save blocked account store");
+
+        sync_current_auth_account_on_startup_with_auth(
+            &store_path,
+            chatgpt_auth_with_refresh_token(
+                "upgraded@example.com",
+                "workspace-1",
+                "pro",
+                "refresh-new",
+                20,
+            ),
+        )
+        .expect("sync newer auth snapshot");
+
+        let loaded = load_store_from_path(&store_path).expect("load healed account store");
+        assert_eq!(loaded.accounts.len(), 1);
+        assert_eq!(loaded.accounts[0].id, original_id);
+        assert!(loaded.accounts[0].usage.is_some());
+        assert!(!loaded.accounts[0].auth_refresh_blocked);
+        assert!(loaded.accounts[0].auth_refresh_error.is_none());
+        assert_eq!(
+            loaded.accounts[0]
+                .auth_json
+                .get("tokens")
+                .and_then(serde_json::Value::as_object)
+                .and_then(|tokens| tokens.get("refresh_token"))
+                .and_then(serde_json::Value::as_str),
+            Some("refresh-new")
+        );
+    }
+
+    #[test]
+    fn startup_sync_keeps_refresh_block_for_an_older_snapshot() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("upgraded", "workspace-1", 10);
+        store.accounts[0].usage = Some(usage_snapshot("pro"));
+        store.accounts[0].auth_json = chatgpt_auth_with_refresh_token(
+            "upgraded@example.com",
+            "workspace-1",
+            "pro",
+            "refresh-current",
+            20,
+        );
+        store.accounts[0].auth_refresh_blocked = true;
+        store.accounts[0].auth_refresh_error = Some("real refresh failure".to_string());
+        save_store_to_path(&store_path, &store).expect("save blocked account store");
+
+        sync_current_auth_account_on_startup_with_auth(
+            &store_path,
+            chatgpt_auth_with_refresh_token(
+                "upgraded@example.com",
+                "workspace-1",
+                "pro",
+                "refresh-older",
+                10,
+            ),
+        )
+        .expect("ignore older auth snapshot");
+
+        let loaded = load_store_from_path(&store_path).expect("load blocked account store");
+        assert!(loaded.accounts[0].auth_refresh_blocked);
+        assert_eq!(
+            loaded.accounts[0].auth_refresh_error.as_deref(),
+            Some("real refresh failure")
+        );
+    }
+
+    #[test]
+    fn startup_sync_removes_an_empty_stale_plan_variant_when_cache_exists() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut store = sample_store("upgraded", "workspace-1", 10);
+        store.accounts[0].plan_type = Some("pro".to_string());
+        store.accounts[0].usage = Some(usage_snapshot("pro"));
+        store.accounts[0].auth_json = chatgpt_auth("upgraded@example.com", "workspace-1", "pro");
+        let cached_id = store.accounts[0].id.clone();
+
+        let mut empty_plus = store.accounts[0].clone();
+        empty_plus.id = "empty-plus".to_string();
+        empty_plus.plan_type = Some("plus".to_string());
+        empty_plus.auth_json = chatgpt_auth("upgraded@example.com", "workspace-1", "plus");
+        empty_plus.usage = None;
+        empty_plus.added_at = 20;
+        empty_plus.updated_at = 20;
+        store.accounts.push(empty_plus);
+        store.settings.active_account_id = Some("empty-plus".to_string());
+        save_store_to_path(&store_path, &store).expect("save account variants");
+
+        sync_current_auth_account_on_startup_with_auth(
+            &store_path,
+            chatgpt_auth("upgraded@example.com", "workspace-1", "plus"),
+        )
+        .expect("sync stale plan auth");
+
+        let loaded = load_store_from_path(&store_path).expect("load reconciled store");
+        assert_eq!(loaded.accounts.len(), 1);
+        assert_eq!(loaded.accounts[0].id, cached_id);
+        assert_eq!(
+            loaded.accounts[0].resolved_plan_type().as_deref(),
+            Some("pro")
+        );
+        assert!(loaded.accounts[0].usage.is_some());
+        assert_eq!(
+            loaded.settings.active_account_id.as_deref(),
+            Some(cached_id.as_str())
+        );
+    }
+
+    #[test]
+    fn startup_sync_still_imports_a_new_stable_account_identity() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        save_store_to_path(&store_path, &AccountsStore::default()).expect("save empty store");
+
+        sync_current_auth_account_on_startup_with_auth(
+            &store_path,
+            chatgpt_auth("new@example.com", "workspace-new", "plus"),
+        )
+        .expect("sync new account");
+
+        let loaded = load_store_from_path(&store_path).expect("load synced store");
+        assert_eq!(loaded.accounts.len(), 1);
+        assert_eq!(loaded.accounts[0].email.as_deref(), Some("new@example.com"));
+        assert_eq!(
+            loaded.accounts[0].resolved_plan_type().as_deref(),
+            Some("plus")
+        );
+        assert!(loaded.accounts[0].usage.is_none());
+    }
+
+    #[test]
+    fn load_store_recovers_from_backup_candidates_instead_of_resetting() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        fs::write(&store_path, "{not valid json").expect("write damaged store");
+
+        let backup_path = dir.join("accounts.json.manual-backup-1");
+        let backup_store = sample_store("restored", "workspace-1", 10);
+        fs::write(
+            &backup_path,
+            serde_json::to_string_pretty(&backup_store).expect("serialize backup"),
+        )
+        .expect("write backup");
+
+        let loaded = load_store_from_path(&store_path).expect("recover store");
+
+        assert_eq!(loaded.accounts.len(), 1);
+        assert_eq!(loaded.accounts[0].label, "restored");
+
+        let persisted: AccountsStore =
+            serde_json::from_str(&fs::read_to_string(&store_path).expect("read repaired store"))
+                .expect("parse repaired store");
+        assert_eq!(persisted.accounts.len(), 1);
+        assert_eq!(persisted.accounts[0].label, "restored");
+    }
+
+    #[test]
+    fn save_store_writes_rolling_good_backups() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+
+        let first = sample_store("first", "workspace-1", 10);
+        save_store_to_path(&store_path, &first).expect("save first");
+
+        let latest_backup = dir.join(LAST_GOOD_BACKUP_FILE_NAME);
+        assert!(latest_backup.exists());
+
+        let second = sample_store("second", "workspace-2", 20);
+        save_store_to_path(&store_path, &second).expect("save second");
+
+        let previous_backup = dir.join(PREVIOUS_GOOD_BACKUP_FILE_NAME);
+        assert!(previous_backup.exists());
+
+        let previous: AccountsStore =
+            serde_json::from_str(&fs::read_to_string(&previous_backup).expect("read previous"))
+                .expect("parse previous");
+        let latest: AccountsStore =
+            serde_json::from_str(&fs::read_to_string(&latest_backup).expect("read latest"))
+                .expect("parse latest");
+
+        assert_eq!(previous.accounts[0].label, "first");
+        assert_eq!(latest.accounts[0].label, "second");
+    }
+
+    #[test]
+    fn load_store_backfills_missing_principal_id() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let legacy_store = AccountsStore {
+            version: 1,
+            accounts: vec![StoredAccount {
+                id: "legacy".to_string(),
+                label: "legacy".to_string(),
+                source_kind: Default::default(),
+                principal_id: None,
+                email: Some("legacy@example.com".to_string()),
+                account_id: "workspace-1".to_string(),
+                plan_type: Some("team".to_string()),
+                auth_json: json!({ "kind": "legacy" }),
+                api_base_url: None,
+                api_key: None,
+                model_name: None,
+                balance_text: None,
+                profile_auth_path: None,
+                profile_config_path: None,
+                profile_auth_ready: false,
+                profile_config_ready: false,
+                profile_integrity_error: None,
+                profile_last_validated_at: None,
+                profile_last_validation_error: None,
+                added_at: 1,
+                updated_at: 1,
+                usage: None,
+                usage_error: None,
+                auth_refresh_blocked: false,
+                auth_refresh_error: None,
+            }],
+            settings: Default::default(),
+        };
+        fs::write(
+            &store_path,
+            serde_json::to_string_pretty(&legacy_store).expect("serialize legacy store"),
+        )
+        .expect("write legacy store");
+
+        let loaded = load_store_from_path(&store_path).expect("load legacy store");
+
+        assert_eq!(
+            loaded.accounts[0].principal_id.as_deref(),
+            Some("legacy@example.com")
+        );
+    }
+
+    #[test]
+    fn load_store_repairs_missing_profile_files() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let legacy_store = sample_store("legacy", "workspace-1", 10);
+        fs::write(
+            &store_path,
+            serde_json::to_string_pretty(&legacy_store).expect("serialize legacy store"),
+        )
+        .expect("write legacy store");
+
+        let loaded = load_store_from_path(&store_path).expect("load legacy store");
+        let account = &loaded.accounts[0];
+        let auth_path = account
+            .profile_auth_path
+            .as_ref()
+            .map(PathBuf::from)
+            .expect("profile auth path");
+        let config_path = account
+            .profile_config_path
+            .as_ref()
+            .map(PathBuf::from)
+            .expect("profile config path");
+
+        assert!(account.profile_auth_ready);
+        assert!(account.profile_config_ready);
+        assert_eq!(account.profile_integrity_error, None);
+        assert!(auth_path.is_file());
+        assert!(config_path.is_file());
+
+        let persisted: AccountsStore =
+            serde_json::from_str(&fs::read_to_string(&store_path).expect("read repaired store"))
+                .expect("parse repaired store");
+        assert!(persisted.accounts[0].profile_auth_ready);
+        assert!(persisted.accounts[0].profile_config_ready);
+        assert_eq!(persisted.accounts[0].profile_integrity_error, None);
+    }
+
+    #[test]
+    fn load_store_repairs_missing_relay_profile_files() {
+        let dir = temp_dir();
+        let store_path = dir.join("accounts.json");
+        let mut relay_store = sample_store("relay", "relay:workspace-1", 10);
+        relay_store.accounts[0].source_kind = AccountSourceKind::Relay;
+        relay_store.accounts[0].api_base_url = Some("https://example.test/v1".to_string());
+        relay_store.accounts[0].api_key = Some("sk-test".to_string());
+        relay_store.accounts[0].model_name = Some("gpt-5.5-codex".to_string());
+        fs::write(
+            &store_path,
+            serde_json::to_string_pretty(&relay_store).expect("serialize relay store"),
+        )
+        .expect("write relay store");
+
+        let loaded = load_store_from_path(&store_path).expect("load relay store");
+        let account = &loaded.accounts[0];
+        let auth_path = account
+            .profile_auth_path
+            .as_ref()
+            .map(PathBuf::from)
+            .expect("profile auth path");
+        let config_path = account
+            .profile_config_path
+            .as_ref()
+            .map(PathBuf::from)
+            .expect("profile config path");
+        let auth_contents = fs::read_to_string(auth_path).expect("read relay auth");
+        let config_contents = fs::read_to_string(config_path).expect("read relay config");
+
+        assert!(account.profile_auth_ready);
+        assert!(account.profile_config_ready);
+        assert_eq!(account.profile_integrity_error, None);
+        assert!(auth_contents.contains("sk-test"));
+        assert!(config_contents.contains("https://example.test/v1"));
+        assert!(config_contents.contains("gpt-5.5-codex"));
+    }
+}

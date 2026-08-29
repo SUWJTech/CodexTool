@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "preset-crystal-horizon",
+  "name": "Crystal Horizon",
+  "brandSubtitle": "CODEXTOOL CLEAR LAB",
+  "tagline": "Clarity for every idea.",
+  "projectPrefix": "Open workspace · ",
+  "projectLabel": "◉  Open workspace",
+  "statusText": "CRYSTAL FOCUS READY",
+  "quote": "MAKE COMPLEXITY FEEL LIGHT",
+  "image": "crystal-horizon.png",
+  "appearance": "light",
+  "art": { "focusX": 0.8, "focusY": 0.5, "safeArea": "left", "taskMode": "ambient" },
+  "colors": {
+    "background": "#edf5ff", "panel": "#ffffff", "panelAlt": "#e8f2ff",
+    "accent": "#2563eb", "accentAlt": "#38bdf8", "secondary": "#818cf8",
+    "highlight": "#6366f1", "text": "#14213d", "muted": "#5f7396",
+    "line": "rgba(37, 99, 235, .18)"
+  },
+  "promoTitle": "CodexTool Skin",
+  "promoSub": "Crystal Horizon",
+  "promoUrl": "https://github.com/SUWJTech/CodexTool"
+}

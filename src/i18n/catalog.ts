@@ -1,0 +1,692 @@
+import enUsRaw from "./locales/en-US.json";
+import jaJpRaw from "./locales/ja-JP.json";
+import koKrRaw from "./locales/ko-KR.json";
+import ruRuRaw from "./locales/ru-RU.json";
+import zhCnRaw from "./locales/zh-CN.json";
+
+export const SUPPORTED_LOCALES = [
+  "zh-CN",
+  "en-US",
+  "ja-JP",
+  "ko-KR",
+  "ru-RU",
+] as const;
+
+export type AppLocale = (typeof SUPPORTED_LOCALES)[number];
+
+export type LocaleOption = {
+  code: AppLocale;
+  shortLabel: string;
+  nativeLabel: string;
+};
+
+export const LOCALE_OPTIONS: LocaleOption[] = [
+  { code: "zh-CN", shortLabel: "中", nativeLabel: "中文" },
+  { code: "en-US", shortLabel: "EN", nativeLabel: "English" },
+  { code: "ja-JP", shortLabel: "日", nativeLabel: "日本語" },
+  { code: "ko-KR", shortLabel: "한", nativeLabel: "한국어" },
+  { code: "ru-RU", shortLabel: "RU", nativeLabel: "Русский" },
+];
+
+export const DEFAULT_LOCALE: AppLocale = "zh-CN";
+
+export function isSupportedLocale(
+  value: string | null | undefined,
+): value is AppLocale {
+  return (
+    value === "zh-CN" ||
+    value === "en-US" ||
+    value === "ja-JP" ||
+    value === "ko-KR" ||
+    value === "ru-RU"
+  );
+}
+
+export function getNextLocale(current: AppLocale): AppLocale {
+  const index = LOCALE_OPTIONS.findIndex((item) => item.code === current);
+  if (index < 0) {
+    return DEFAULT_LOCALE;
+  }
+  return LOCALE_OPTIONS[(index + 1) % LOCALE_OPTIONS.length].code;
+}
+
+export type MessageCatalog = {
+  common: {
+    close: string;
+    clear: string;
+  };
+  topBar: {
+    appTitle: string;
+    logoAlt: string;
+    checkUpdate: string;
+    checkingUpdate: string;
+    manualRefresh: string;
+    refreshing: string;
+    openSettings: string;
+    toggleLanguage: (nextLanguage: string) => string;
+    languagePicker: string;
+  };
+  quotaOnboarding: {
+    title: string;
+    description: string;
+    livePreview: string;
+    macTitle: string;
+    macStatusBarTitle: string;
+    macCodexToolIconOption: string;
+    macProgressRingIconOption: string;
+    macStatusBarDescription: string;
+    macStatusBarModeLabel: string;
+    macTrayTitle: string;
+    macTrayDescription: string;
+    macApplying: string;
+    taskbarTitle: string;
+    taskbarDescription: string;
+    trayTitle: string;
+    trayDescription: string;
+    enable: string;
+    enabled: string;
+    taskbarPlacementLabel: string;
+    taskbarLeft: string;
+    taskbarRight: string;
+    trayHint: string;
+    requireOne: string;
+    ready: string;
+    applying: string;
+    liveUpdateFailed: string;
+    confirm: string;
+    saving: string;
+    saveFailed: string;
+  };
+  metaStrip: {
+    ariaLabel: string;
+    accountCount: string;
+    currentActive: string;
+    tokensSession: string;
+    tokens24h: string;
+    tokens7d: string;
+    tokens30d: string;
+    tokensPending: string;
+    tokensUpdatedAt: string;
+    tokensSources: string;
+    tokensEvents: string;
+    tokensFailedSources: string;
+    exportAll: string;
+  };
+  addAccount: {
+    smartSwitch: string;
+    exportButton: string;
+    startButton: string;
+    dialogAriaLabel: string;
+    dialogTitle: string;
+    dialogSubtitle: string;
+    reauthorizeDialogTitle: string;
+    reauthorizeDialogSubtitle: (label: string) => string;
+    tabsAriaLabel: string;
+    oauthTab: string;
+    oauthDescription: string;
+    reauthorizeOauthDescription: string;
+    oauthLinkLabel: string;
+    oauthOpenBrowser: string;
+    oauthListening: string;
+    oauthCallbackLabel: string;
+    oauthCallbackPlaceholder: string;
+    oauthParseCallback: string;
+    reauthorizeParseCallback: string;
+    oauthPreparing: string;
+    oauthCallbackSubmitting: string;
+    currentTab: string;
+    currentDescription: string;
+    currentStart: string;
+    currentImporting: string;
+    sessionTab: string;
+    sessionDescription: string;
+    sessionJsonLabel: string;
+    sessionJsonPlaceholder: string;
+    sessionStartImport: string;
+    sessionImporting: string;
+    uploadTab: string;
+    uploadDescription: string;
+    apiTab: string;
+    apiDescription: string;
+    apiNameLabel: string;
+    apiNamePlaceholder: string;
+    apiBaseUrlLabel: string;
+    apiBaseUrlPlaceholder: string;
+    apiBaseUrlHint: string;
+    apiKeyLabel: string;
+    apiKeyPlaceholder: string;
+    apiModelLabel: string;
+    apiModelPlaceholder: string;
+    apiValidationTitle: string;
+    apiValidationDescription: string;
+    apiValidationFailed: string;
+    apiTestConnection: string;
+    apiTestingConnection: string;
+    apiTestSucceeded: string;
+    apiValidateAndSave: string;
+    apiSaving: string;
+    apiForceSave: string;
+    uploadChooseFiles: string;
+    uploadChooseFolder: string;
+    uploadNoJsonFiles: string;
+    uploadFileSummary: (firstPath: string, count: number) => string;
+    uploadSelectedCount: (count: number) => string;
+    uploadNoFiles: string;
+    uploadQueueTitle: string;
+    uploadQueueEmpty: string;
+    uploadImporting: string;
+    uploadStartImport: string;
+  };
+  accountCard: {
+    currentStamp: string;
+    currentBadge: string;
+    launch: string;
+    launching: string;
+    apiBadge: string;
+    profileIncomplete: string;
+    validationFailed: string;
+    endpointLabel: string;
+    modelLabel: string;
+    balanceLabel: string;
+    reauthorize: string;
+    editAlias: string;
+    aliasInputLabel: string;
+    delete: string;
+    deleteConfirm: string;
+    used: string;
+    remaining: string;
+    resetAt: string;
+    credits: string;
+    unlimited: string;
+    fiveHourFallback: string;
+    oneWeekFallback: string;
+    oneWeekLabel: string;
+    hourSuffix: string;
+    minuteSuffix: string;
+    planLabels: Record<string, string>;
+  };
+  accountDeleteDialog: {
+    title: string;
+    description: (label: string) => string;
+    cancel: string;
+    confirm: string;
+    deleting: string;
+  };
+  accountsGrid: {
+    emptyTitle: string;
+    emptyDescription: string;
+    usageRefreshing: string;
+    usageRefreshingCached: (updatedAt: string) => string;
+    usageUpdatedAt: (updatedAt: string) => string;
+    usageRefreshFailed: (reason: string) => string;
+    usageRefreshFailedCached: (reason: string, updatedAt: string) => string;
+    usageFailureTimeout: string;
+    usageFailureNetwork: string;
+    usageFailureAuthorization: string;
+    usageFailureRateLimited: string;
+    usageFailureServer: string;
+    usageFailureInvalidResponse: string;
+    usageFailureUnknown: string;
+    usageUnavailable: string;
+  };
+  bottomDock: {
+    ariaLabel: string;
+    accounts: string;
+    analytics: string;
+    settings: string;
+  };
+  analytics: {
+    kicker: string;
+    title: string;
+    description: string;
+    refresh: string;
+    exportCsv: string;
+    exportJson: string;
+    exporting: string;
+    loadingTitle: string;
+    loadingDescription: string;
+    progressScanning: string;
+    progressCaching: string;
+    progressComplete: string;
+    emptyTitle: string;
+    emptyDescription: string;
+    errorTitle: string;
+    totalCost: string;
+    last7dCost: string;
+    totalTokens: string;
+    sessions: string;
+    projectsTitle: string;
+    projectsDescription: string;
+    sessionsTitle: string;
+    sessionsDescription: string;
+    heatmapTitle: string;
+    heatmapDescription: string;
+    heatmapAriaLabel: string;
+    heatmapTooltip: (weekday: string, time: string, tokens: string) => string;
+    topPromptsTitle: string;
+    topPromptsDescription: string;
+    budgetTitle: string;
+    budgetDescription: string;
+    budgetInputLabel: string;
+    budgetPlaceholder: string;
+    budgetSave: string;
+    budgetClear: string;
+    budgetUnset: string;
+    budgetOk: string;
+    budgetWarning: string;
+    budgetDanger: string;
+    pricingEstimate: string;
+    costSourceLocal: string;
+    sourceFiles: string;
+    tokenEvents: string;
+    failedSources: string;
+    unresolvedForks: string;
+    usageAnomalies: string;
+    project: string;
+    cost: string;
+    prompts: string;
+    events: string;
+    updated: string;
+    model: string;
+    started: string;
+    duration: string;
+    promptPreview: string;
+    promptChars: string;
+    sessionDelete: string;
+    sessionDeleteConfirm: string;
+    sessionDeleting: string;
+  };
+  settings: {
+    dialogAriaLabel: string;
+    title: string;
+    subtitle: string;
+    languageSubtitle: string;
+    close: string;
+    launchAtStartup: {
+      label: string;
+      description: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    launchCodexAfterSwitch: {
+      label: string;
+      description: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    smartSwitchIncludeApi: {
+      label: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    launchCodexAsAdmin: {
+      label: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    codexLaunchPath: {
+      label: string;
+    };
+    syncOpencode: {
+      label: string;
+      description: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    restartOpencodeDesktop: {
+      label: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    restartEditorsOnSwitch: {
+      label: string;
+      description: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    restartEditorTargets: {
+      label: string;
+      description: string;
+    };
+    noSupportedEditors: string;
+    trayUsageDisplay: {
+      label: string;
+      description: string;
+      groupAriaLabel: string;
+      remaining: string;
+      used: string;
+      fiveHourRemaining: string;
+      oneWeekRemaining: string;
+      hidden: string;
+    };
+    trayUsageTitleWindowLabels: {
+      label: string;
+      checkedText: string;
+      uncheckedText: string;
+    };
+    windowsTrayIconStyle: {
+      label: string;
+      description: string;
+      groupAriaLabel: string;
+      gradientNumberPlate: string;
+      gradientNumberCard: string;
+      gradientNumber: string;
+      numberProgressBar: string;
+      logoProgressRing: string;
+      hidden: string;
+    };
+    macosTrayLogoRingVariants: {
+      withPercentage: string;
+      withoutPercentage: string;
+    };
+    macosQuotaOnboardingPreview: {
+      label: string;
+      description: string;
+      open: string;
+    };
+    windowsTaskbarWidget: {
+      label: string;
+      description: string;
+      groupAriaLabel: string;
+      left: string;
+      right: string;
+      hidden: string;
+    };
+    windowsWidgets: {
+      disable: string;
+      disableAriaLabel: string;
+      openFailed: string;
+    };
+    theme: {
+      label: string;
+      description: string;
+      switchAriaLabel: string;
+      dark: string;
+      light: string;
+    };
+    projectInfo: {
+      versionLabel: string;
+      repositoryLabel: string;
+      releasesLabel: string;
+      openRepository: string;
+      openIssues: string;
+      openReleases: string;
+      openChangelog: string;
+    };
+  };
+  editorPicker: {
+    ariaLabel: string;
+    placeholder: string;
+  };
+  editorAppLabels: Record<string, string>;
+  updateDialog: {
+    ariaLabel: string;
+    title: (version: string) => string;
+    subtitle: (currentVersion: string) => string;
+    close: string;
+    publishedAt: (date: string) => string;
+    statusReady: string;
+    statusInstalling: string;
+    manualDownload: string;
+    skipThisVersion: string;
+    installNow: string;
+    installingNow: string;
+    changelogTitle: string;
+    changelogEmpty: string;
+  };
+  notices: {
+    settingsUpdated: string;
+    updateSettingsFailed: (error: string) => string;
+    usageRefreshed: string;
+    refreshFailed: (error: string) => string;
+    reloginRequired: (label: string) => string;
+    preparingUpdateDownload: string;
+    alreadyLatest: string;
+    updateDownloadStarted: string;
+    updateDownloadingPercent: (percent: number) => string;
+    updateDownloading: string;
+    updateDownloadFinished: string;
+    updateInstalling: string;
+    updateInstallFailed: (error: string) => string;
+    foundNewVersion: (version: string, currentVersion: string) => string;
+    updateCheckFailed: (error: string) => string;
+    openExternalFailed: (error: string) => string;
+    openManualDownloadFailed: (error: string) => string;
+    oauthLinkPrepareFailed: (error: string) => string;
+    oauthImportPrefix: string;
+    currentAccountImportSuccess: string;
+    currentAccountImportFailed: (error: string) => string;
+    apiAccountCreated: (label: string) => string;
+    apiAccountCreateFailed: (error: string) => string;
+    profileIntegrityWarning: (count: number) => string;
+    accountAliasUpdated: (label: string) => string;
+    accountAliasUpdateFailed: (error: string) => string;
+    accountsExported: string;
+    accountsExportFailed: (error: string) => string;
+    deleteConfirm: (label: string) => string;
+    accountDeleted: string;
+    deleteFailed: (error: string) => string;
+    accountAlreadyCurrent: string;
+    switchedOnly: string;
+    switchedAndLaunchByCli: string;
+    switchedAndLaunching: string;
+    providerSyncFailed: (base: string, error: string) => string;
+    opencodeSyncFailed: (base: string, error: string) => string;
+    opencodeSynced: (base: string) => string;
+    opencodeDesktopRestartFailed: (base: string, error: string) => string;
+    opencodeDesktopRestarted: (base: string) => string;
+    editorRestartFailed: (base: string, error: string) => string;
+    editorsRestarted: (base: string, labels: string) => string;
+    noEditorRestarted: (base: string) => string;
+    switchFailed: (error: string) => string;
+    smartSwitchNoTarget: string;
+    smartSwitchAlreadyBest: string;
+    fileImportPrefix: string;
+    importFilesRequired: string;
+    importFailedPlain: (prefix: string, error: string) => string;
+    importFailedWithSource: (
+      prefix: string,
+      source: string,
+      error: string,
+    ) => string;
+    importFailedNoValidJson: (prefix: string) => string;
+    importSummaryAdded: (count: number) => string;
+    importSummaryUpdated: (count: number) => string;
+    importSummaryFailed: (count: number) => string;
+    importSummaryFirstFailure: (source: string, error: string) => string;
+    importSummaryDone: (
+      prefix: string,
+      summary: string,
+      suffix: string,
+    ) => string;
+    codexAnalyticsExported: string;
+    codexAnalyticsExportFailed: (error: string) => string;
+    codexSessionDeleted: (sessionId: string) => string;
+    codexSessionDeleteFailed: (error: string) => string;
+  };
+};
+
+type Rawify<T> = T extends (...args: infer _Args) => string
+  ? string
+  : T extends Record<string, unknown>
+    ? { [K in keyof T]: Rawify<T[K]> }
+    : T;
+
+type RawMessageCatalog = Rawify<MessageCatalog>;
+
+function fillTemplate(
+  template: string,
+  values: Record<string, string | number>,
+): string {
+  return template.replace(
+    /\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g,
+    (_, key: string) => {
+      const value = values[key];
+      return value === undefined ? "" : String(value);
+    },
+  );
+}
+
+function compileLocale(raw: RawMessageCatalog): MessageCatalog {
+  return {
+    common: raw.common,
+    topBar: {
+      ...raw.topBar,
+      toggleLanguage: (nextLanguage) =>
+        fillTemplate(raw.topBar.toggleLanguage, { nextLanguage }),
+    },
+    quotaOnboarding: raw.quotaOnboarding,
+    metaStrip: raw.metaStrip,
+    addAccount: {
+      ...raw.addAccount,
+      reauthorizeDialogSubtitle: (label) =>
+        fillTemplate(raw.addAccount.reauthorizeDialogSubtitle, { label }),
+      uploadFileSummary: (firstPath, count) =>
+        fillTemplate(raw.addAccount.uploadFileSummary, {
+          firstPath,
+          count,
+          remainingCount: Math.max(count - 1, 0),
+        }),
+      uploadSelectedCount: (count) =>
+        fillTemplate(raw.addAccount.uploadSelectedCount, { count }),
+    },
+    accountCard: raw.accountCard,
+    accountDeleteDialog: {
+      ...raw.accountDeleteDialog,
+      description: (label) =>
+        fillTemplate(raw.accountDeleteDialog.description, { label }),
+    },
+    accountsGrid: {
+      ...raw.accountsGrid,
+      usageRefreshingCached: (updatedAt) =>
+        fillTemplate(raw.accountsGrid.usageRefreshingCached, { updatedAt }),
+      usageUpdatedAt: (updatedAt) =>
+        fillTemplate(raw.accountsGrid.usageUpdatedAt, { updatedAt }),
+      usageRefreshFailed: (reason) =>
+        fillTemplate(raw.accountsGrid.usageRefreshFailed, { reason }),
+      usageRefreshFailedCached: (reason, updatedAt) =>
+        fillTemplate(raw.accountsGrid.usageRefreshFailedCached, {
+          reason,
+          updatedAt,
+        }),
+    },
+    bottomDock: raw.bottomDock,
+    analytics: {
+      ...raw.analytics,
+      heatmapTooltip: (weekday, time, tokens) =>
+        fillTemplate(raw.analytics.heatmapTooltip, {
+          weekday,
+          time,
+          tokens,
+        }),
+    },
+    settings: raw.settings,
+    editorPicker: raw.editorPicker,
+    editorAppLabels: raw.editorAppLabels,
+    updateDialog: {
+      ...raw.updateDialog,
+      title: (version) => fillTemplate(raw.updateDialog.title, { version }),
+      subtitle: (currentVersion) =>
+        fillTemplate(raw.updateDialog.subtitle, { currentVersion }),
+      publishedAt: (date) =>
+        fillTemplate(raw.updateDialog.publishedAt, { date }),
+    },
+    notices: {
+      ...raw.notices,
+      updateSettingsFailed: (error) =>
+        fillTemplate(raw.notices.updateSettingsFailed, { error }),
+      refreshFailed: (error) =>
+        fillTemplate(raw.notices.refreshFailed, { error }),
+      reloginRequired: (label) =>
+        fillTemplate(raw.notices.reloginRequired, { label }),
+      updateDownloadingPercent: (percent) =>
+        fillTemplate(raw.notices.updateDownloadingPercent, { percent }),
+      updateInstallFailed: (error) =>
+        fillTemplate(raw.notices.updateInstallFailed, { error }),
+      foundNewVersion: (version, currentVersion) =>
+        fillTemplate(raw.notices.foundNewVersion, { version, currentVersion }),
+      updateCheckFailed: (error) =>
+        fillTemplate(raw.notices.updateCheckFailed, { error }),
+      openExternalFailed: (error) =>
+        fillTemplate(raw.notices.openExternalFailed, { error }),
+      openManualDownloadFailed: (error) =>
+        fillTemplate(raw.notices.openManualDownloadFailed, { error }),
+      oauthLinkPrepareFailed: (error) =>
+        fillTemplate(raw.notices.oauthLinkPrepareFailed, { error }),
+      currentAccountImportFailed: (error) =>
+        fillTemplate(raw.notices.currentAccountImportFailed, { error }),
+      apiAccountCreated: (label) =>
+        fillTemplate(raw.notices.apiAccountCreated, { label }),
+      apiAccountCreateFailed: (error) =>
+        fillTemplate(raw.notices.apiAccountCreateFailed, { error }),
+      profileIntegrityWarning: (count) =>
+        fillTemplate(raw.notices.profileIntegrityWarning, { count }),
+      accountAliasUpdated: (label) =>
+        fillTemplate(raw.notices.accountAliasUpdated, { label }),
+      accountAliasUpdateFailed: (error) =>
+        fillTemplate(raw.notices.accountAliasUpdateFailed, { error }),
+      accountsExportFailed: (error) =>
+        fillTemplate(raw.notices.accountsExportFailed, { error }),
+      deleteConfirm: (label) =>
+        fillTemplate(raw.notices.deleteConfirm, { label }),
+      deleteFailed: (error) =>
+        fillTemplate(raw.notices.deleteFailed, { error }),
+      providerSyncFailed: (base, error) =>
+        fillTemplate(raw.notices.providerSyncFailed, { base, error }),
+      opencodeSyncFailed: (base, error) =>
+        fillTemplate(raw.notices.opencodeSyncFailed, { base, error }),
+      opencodeSynced: (base) =>
+        fillTemplate(raw.notices.opencodeSynced, { base }),
+      opencodeDesktopRestartFailed: (base, error) =>
+        fillTemplate(raw.notices.opencodeDesktopRestartFailed, { base, error }),
+      opencodeDesktopRestarted: (base) =>
+        fillTemplate(raw.notices.opencodeDesktopRestarted, { base }),
+      editorRestartFailed: (base, error) =>
+        fillTemplate(raw.notices.editorRestartFailed, { base, error }),
+      editorsRestarted: (base, labels) =>
+        fillTemplate(raw.notices.editorsRestarted, { base, labels }),
+      noEditorRestarted: (base) =>
+        fillTemplate(raw.notices.noEditorRestarted, { base }),
+      switchFailed: (error) =>
+        fillTemplate(raw.notices.switchFailed, { error }),
+      importFailedPlain: (prefix, error) =>
+        fillTemplate(raw.notices.importFailedPlain, { prefix, error }),
+      importFailedWithSource: (prefix, source, error) =>
+        fillTemplate(raw.notices.importFailedWithSource, {
+          prefix,
+          source,
+          error,
+        }),
+      importFailedNoValidJson: (prefix) =>
+        fillTemplate(raw.notices.importFailedNoValidJson, { prefix }),
+      importSummaryAdded: (count) =>
+        fillTemplate(raw.notices.importSummaryAdded, { count }),
+      importSummaryUpdated: (count) =>
+        fillTemplate(raw.notices.importSummaryUpdated, { count }),
+      importSummaryFailed: (count) =>
+        fillTemplate(raw.notices.importSummaryFailed, { count }),
+      importSummaryFirstFailure: (source, error) =>
+        fillTemplate(raw.notices.importSummaryFirstFailure, { source, error }),
+      importSummaryDone: (prefix, summary, suffix) =>
+        fillTemplate(raw.notices.importSummaryDone, {
+          prefix,
+          summary,
+          suffix,
+        }).trim(),
+      codexAnalyticsExportFailed: (error) =>
+        fillTemplate(raw.notices.codexAnalyticsExportFailed, { error }),
+      codexSessionDeleted: (sessionId) =>
+        fillTemplate(raw.notices.codexSessionDeleted, { sessionId }),
+      codexSessionDeleteFailed: (error) =>
+        fillTemplate(raw.notices.codexSessionDeleteFailed, { error }),
+    },
+  };
+}
+
+export const MESSAGES: Record<AppLocale, MessageCatalog> = {
+  "zh-CN": compileLocale(zhCnRaw as RawMessageCatalog),
+  "en-US": compileLocale(enUsRaw as RawMessageCatalog),
+  "ja-JP": compileLocale(jaJpRaw as RawMessageCatalog),
+  "ko-KR": compileLocale(koKrRaw as RawMessageCatalog),
+  "ru-RU": compileLocale(ruRuRaw as RawMessageCatalog),
+};

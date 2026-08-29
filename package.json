@@ -1,0 +1,48 @@
+{
+  "name": "codextool",
+  "private": true,
+  "version": "0.1.3",
+  "license": "MIT",
+  "homepage": "https://github.com/SUWJTech/CodexTool",
+  "bugs": {
+    "url": "https://github.com/SUWJTech/CodexTool/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SUWJTech/CodexTool.git"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:desktop": "powershell -ExecutionPolicy Bypass -File ./scripts/dev-preview.ps1",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "macos:menu-bar:acceptance": "bash ./scripts/macos-menu-bar-validation.sh acceptance",
+    "macos:menu-bar:dev": "bash ./scripts/macos-menu-bar-validation.sh dev",
+    "preview": "vite preview",
+    "test:quota-onboarding": "node --test tests/quotaDisplayOnboarding.test.ts",
+    "test:usage-errors": "node --test tests/usageRefreshError.test.ts",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.10.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@tauri-apps/cli": "^2.10.0",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "vite": "^7.3.1"
+  },
+  "packageManager": "pnpm@9.15.9+sha512.68046141893c66fad01c079231128e9afb89ef87e2691d69e4d40eee228988295fd4682181bae55b58418c3a253bde65a505ec7c5f9403ece5cc3cd37dcf2531"
+}

@@ -1,0 +1,71 @@
+name: Release CodexTool
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Release tag (example: v0.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish release
+        uses: tauri-apps/tauri-action@v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}
+          releaseName: "CodexTool ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}"
+          releaseBody: "CodexTool desktop release. See the repository README for features, installation and verification notes."
+          releaseDraft: false
+          prerelease: false
+          args: "--bundles nsis"
+
+      - name: Package portable build
+        shell: pwsh
+        run: |
+          $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          $portable = Join-Path $PWD "release/CodexTool-$version-portable"
+          New-Item -ItemType Directory -Force -Path $portable | Out-Null
+          Copy-Item -LiteralPath "src-tauri/target/release/codextool.exe" -Destination (Join-Path $portable "CodexTool.exe")
+          Copy-Item -LiteralPath "src-tauri/target/release/resources" -Destination (Join-Path $portable "resources") -Recurse
+          Copy-Item -LiteralPath "README.md" -Destination $portable
+          Copy-Item -LiteralPath "LICENSE" -Destination $portable
+          Compress-Archive -LiteralPath $portable -DestinationPath "release/CodexTool-$version-portable.zip" -CompressionLevel Optimal
+
+      - name: Upload portable build
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          $tag = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.release_tag }}" } else { "${{ github.ref_name }}" }
+          gh release upload $tag "release/CodexTool-$version-portable.zip" --clobber

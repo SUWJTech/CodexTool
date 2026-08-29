@@ -1,0 +1,57 @@
+[package]
+name = "codextool"
+version = "0.1.3"
+description = "CodexTool desktop account, Skill, and appearance manager"
+authors = ["SUWJTech"]
+license = "MIT"
+repository = "https://github.com/SUWJTech/CodexTool"
+edition = "2021"
+rust-version = "1.77.2"
+default-run = "codextool"
+
+[features]
+default = ["desktop"]
+desktop = []
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "codextool_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.4", features = [] }
+
+[dependencies]
+log = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sysinfo = "0.30"
+tauri-plugin-log = "2"
+tauri = { version = "2.10.0", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2.4.1"
+tokio = { version = "1", features = ["io-util", "macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+reqwest = { version = "0.12", features = ["json", "gzip", "stream"] }
+futures-util = "0.3"
+uuid = { version = "1", features = ["v4"] }
+dirs = "6"
+base64 = "0.22"
+encoding_rs = "0.8"
+sha2 = "0.10"
+time = { version = "0.3", features = ["formatting", "local-offset", "parsing"] }
+clap = { version = "4.5", features = ["derive"] }
+tauri-plugin-autostart = "2"
+rfd = "0.15"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }
+toml_edit = "0.22"
+rusqlite = { version = "0.32", features = ["backup", "bundled"] }
+fontdue = "0.9"
+png = "0.17"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.61.3", features = ["Win32_Foundation", "Win32_Graphics_Gdi", "Win32_System_Com", "Win32_System_LibraryLoader", "Win32_System_Registry", "Win32_UI_Accessibility", "Win32_UI_Controls", "Win32_UI_HiDpi", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["NSStatusItem"] }
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["NSString"] }
+tray-icon = { version = "0.21.3", default-features = false }

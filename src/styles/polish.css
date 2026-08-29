@@ -1,0 +1,544 @@
+/* CodexTool 2026 polish: restrained Apple-style hierarchy and shared page chrome. */
+:root:not([data-theme="dark"]) {
+  --brand: #007aff;
+  --brand-strong: #0066d6;
+  --brand-soft: rgba(0, 122, 255, 0.09);
+  --accent: #007aff;
+  --ink: #17171a;
+  --subtle: #65656b;
+  --muted: #8e8e93;
+  --body-bg: #f5f5f7;
+  --shell-top: #f5f5f7;
+  --shell-mid: #f5f5f7;
+  --shell-bottom: #f5f5f7;
+  --stage-glass: #f5f5f7;
+  --panel-bg: #ffffff;
+  --panel: #ffffff;
+  --section-surface: #ffffff;
+  --section-line: rgba(17, 17, 18, 0.1);
+  --line: rgba(17, 17, 18, 0.11);
+  --section-shadow: 0 1px 2px rgba(17, 17, 18, 0.03), 0 10px 28px rgba(17, 17, 18, 0.045);
+  --shadow-soft: 0 1px 2px rgba(17, 17, 18, 0.025), 0 8px 22px rgba(17, 17, 18, 0.04);
+  --button-primary-bg: #007aff;
+  --button-primary-border: #007aff;
+}
+
+.shell {
+  background: var(--body-bg);
+}
+
+.ambient {
+  opacity: 0.12;
+}
+
+.topbar {
+  min-height: 76px;
+  border-bottom-color: var(--section-line);
+  background: color-mix(in srgb, var(--panel-bg) 94%, transparent);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+.marketPage,
+.accountStorePage,
+.analyticsPage,
+.settingsPage {
+  width: min(var(--page-shell-width, 1520px), 100%);
+  padding: 14px 24px 24px;
+}
+
+.settingsShell {
+  gap: 14px;
+  padding-inline: 0;
+}
+
+.workspacePageHeader,
+.analyticsHeader.workspacePageHeader,
+.marketHero.workspacePageHeader,
+.accountStoreHero.workspacePageHeader,
+.settingsHero.workspacePageHeader {
+  min-height: 126px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  overflow: hidden;
+  border: 1px solid var(--section-line);
+  border-radius: 20px;
+  padding: 18px 20px;
+  background: var(--section-surface);
+  box-shadow: var(--section-shadow);
+}
+
+.workspacePageHeader::before,
+.workspacePageHeader::after {
+  display: none;
+}
+
+.workspacePageHeader .marketKicker,
+.workspacePageHeader .analyticsKicker,
+.workspacePageHeader > div:first-child > span {
+  display: inline-flex;
+  margin: 0 0 8px;
+  color: var(--brand);
+  font: 800 0.68rem/1 var(--font-ui);
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase;
+}
+
+.workspacePageHeader h2,
+.analyticsHeader.workspacePageHeader h2,
+.accountStoreHero.workspacePageHeader h2,
+.settingsHero.workspacePageHeader h2,
+.marketHero.workspacePageHeader h2 {
+  margin: 0;
+  color: var(--ink);
+  font: 800 1.34rem/1.18 var(--font-ui);
+  letter-spacing: -0.025em !important;
+}
+
+.workspacePageHeader p,
+.analyticsHeader.workspacePageHeader p,
+.accountStoreHero.workspacePageHeader p,
+.settingsHero.workspacePageHeader p,
+.marketHero.workspacePageHeader p {
+  max-width: 780px;
+  margin: 7px 0 0;
+  color: var(--subtle);
+  font: 590 0.8rem/1.48 var(--font-ui);
+}
+
+.storefrontIdentity {
+  gap: 14px;
+}
+
+.storefrontIdentity > img {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(17, 17, 18, 0.08);
+}
+
+.settingsHeroBadges i,
+.storeConnectionBadge,
+.marketCategory,
+.storePaymentSummary > span {
+  background: color-mix(in srgb, var(--section-surface) 88%, var(--bg-1));
+  backdrop-filter: none;
+}
+
+.settingsGroup,
+.skillCard,
+.skinCatalogCard,
+.accountGoodsCard,
+.analyticsBlock,
+.analyticsBudget {
+  border-color: var(--section-line);
+  background: var(--section-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.settingsGroupHead {
+  background: var(--section-surface);
+}
+
+.settingsGroupIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 8%, var(--section-surface));
+}
+
+.settingsGroupIcon svg {
+  width: 19px;
+  height: 19px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.settingsGroupIcon .appIcon {
+  width: 19px;
+  height: 19px;
+}
+
+.skinCatalogSearch > .appIcon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--subtle);
+}
+
+.storeCategoryIcon .appIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.skinGalleryDownloads {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.skinGalleryDownloads .appIcon {
+  width: 14px;
+  height: 14px;
+}
+
+.quotaStudioBrand img {
+  object-fit: contain;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid color-mix(in srgb, var(--line) 76%, white 24%);
+}
+
+.iconButton > .appIcon {
+  width: 19px;
+  height: 19px;
+}
+
+.buttonIcon.appIcon,
+.metricIconGlyph.appIcon,
+.actionIconGlyph.appIcon,
+.rowIcon.appIcon,
+.searchIcon.appIcon,
+.editorChevron.appIcon,
+.resetCreditsToggleIcon.appIcon {
+  stroke-width: 1.75;
+}
+
+.quotaStudioPreview {
+  border-color: var(--section-line);
+  background: var(--bg-1);
+}
+
+.accountGoodsCard:hover,
+.skinCatalogCard:hover,
+.skillCard:hover {
+  transform: none;
+  border-color: color-mix(in srgb, var(--brand) 28%, var(--section-line));
+  box-shadow: 0 12px 30px rgba(17, 17, 18, 0.075);
+}
+
+.accountGoodsVisual {
+  background: #f2f2f7;
+}
+
+.accountGoodsVisual > span {
+  border-color: rgba(17, 17, 18, 0.08);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.storeCategoryViewport {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 42px;
+  align-items: start;
+  gap: 8px;
+  margin: 14px 0 0;
+}
+
+.storeCategoryRail {
+  display: flex;
+  gap: 10px;
+  min-width: 0;
+  padding: 2px 1px 6px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-behavior: smooth;
+  scroll-padding-inline: 8px;
+  scrollbar-color: color-mix(in srgb, var(--brand) 38%, transparent) transparent;
+  scrollbar-width: thin;
+}
+
+.storeCategoryRail::-webkit-scrollbar {
+  height: 4px;
+}
+
+.storeCategoryRail::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 38%, transparent);
+}
+
+.storeCategoryRail:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand) 48%, transparent);
+  outline-offset: 3px;
+  border-radius: 15px;
+}
+
+.storeCategoryScrollButton {
+  width: 42px;
+  min-width: 42px;
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--section-line);
+  border-radius: 15px;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--section-surface) 92%, var(--brand) 8%);
+  box-shadow: 0 6px 18px rgba(17, 17, 18, 0.05);
+}
+
+.storeCategoryScrollButton .appIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.storeCategoryScrollButton:disabled {
+  color: var(--muted);
+  opacity: 0.38;
+  box-shadow: none;
+}
+
+.storeCategoryRail button {
+  min-width: 144px;
+  min-height: 58px;
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid var(--section-line);
+  border-radius: 15px;
+  padding: 9px 11px;
+  color: var(--subtle);
+  background: var(--section-surface);
+  text-align: left;
+  box-shadow: 0 1px 2px rgba(17, 17, 18, 0.025);
+}
+
+.storeCategoryRail button.isActive {
+  border-color: color-mix(in srgb, var(--brand) 46%, var(--section-line));
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand) 7%, var(--section-surface));
+}
+
+.storeCategoryRail b {
+  overflow: hidden;
+  color: currentColor;
+  font: 760 0.76rem/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.storeCategoryRail small {
+  color: var(--muted);
+  font: 700 0.65rem/1 var(--font-ui);
+}
+
+.storeCategoryIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--bg-1);
+  color: var(--brand);
+  font: 800 0.8rem/1 var(--font-ui);
+}
+
+.storeCategoryIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.storePurchaseOverlay {
+  background: rgba(17, 17, 18, 0.34);
+  backdrop-filter: blur(16px) saturate(120%);
+}
+
+.storePurchaseDialog {
+  border-color: var(--section-line);
+  border-radius: 22px;
+  background: var(--section-surface);
+  box-shadow: 0 24px 70px rgba(17, 17, 18, 0.22);
+}
+
+.storeFieldError {
+  color: var(--danger) !important;
+  font: 650 0.66rem/1.2 var(--font-ui) !important;
+}
+
+.storeFinalTotal {
+  min-height: 72px;
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid color-mix(in srgb, var(--brand) 32%, var(--section-line));
+  border-radius: 16px;
+  padding: 14px 16px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--section-surface));
+}
+
+.storeFinalTotal span {
+  color: var(--subtle);
+  font: 720 0.76rem/1.2 var(--font-ui);
+}
+
+.storeFinalTotal strong {
+  color: var(--brand);
+  font: 850 1.45rem/1 var(--font-ui);
+}
+
+.skinSecurityNote,
+.storeAnnouncement,
+.marketPreviewNote {
+  border-color: var(--section-line);
+  background: var(--section-surface);
+}
+
+.skinEngineStatus {
+  border-color: var(--section-line);
+  background: var(--section-surface);
+}
+
+.skinEngineDot.isReady {
+  background: var(--ok);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--ok) 12%, transparent);
+}
+
+.skinCatalogPreview {
+  background: #f2f2f7;
+}
+
+.skinGalleryDownloads {
+  min-height: 0 !important;
+  margin: 0 !important;
+  color: var(--muted) !important;
+  font: 650 0.7rem/1.2 var(--font-ui) !important;
+}
+
+button,
+.accountGoodsCard,
+.skinCatalogCard,
+.skillCard,
+.storeCategoryRail button {
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), border-color 160ms ease-out, box-shadow 160ms ease-out, background-color 160ms ease-out, opacity 160ms ease-out;
+}
+
+button:not(:disabled):active,
+.storeCategoryRail button:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+@media (max-width: 900px) {
+  .marketPage,
+  .accountStorePage,
+  .analyticsPage,
+  .settingsPage {
+    padding: 12px 14px 20px;
+  }
+
+  .workspacePageHeader,
+  .analyticsHeader.workspacePageHeader,
+  .marketHero.workspacePageHeader,
+  .accountStoreHero.workspacePageHeader,
+  .settingsHero.workspacePageHeader {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding: 16px;
+  }
+
+  .marketHeroActions,
+  .settingsHeroBadges,
+  .storefrontTrustStack {
+    justify-content: flex-start;
+    justify-items: start;
+  }
+
+  .quotaStudioPreview {
+    grid-template-columns: 1fr;
+  }
+
+  .quotaStudioChip {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 600px) {
+  .workspacePageHeader h2,
+  .analyticsHeader.workspacePageHeader h2,
+  .accountStoreHero.workspacePageHeader h2,
+  .settingsHero.workspacePageHeader h2,
+  .marketHero.workspacePageHeader h2 {
+    font-size: 1.2rem;
+  }
+
+  .storefrontIdentity {
+    align-items: flex-start;
+  }
+
+  .storefrontIdentity > img {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .storeCategoryRail button {
+    min-width: 132px;
+  }
+
+  .storeCategoryViewport {
+    grid-template-columns: 36px minmax(0, 1fr) 36px;
+    gap: 6px;
+  }
+
+  .storeCategoryScrollButton {
+    width: 36px;
+    min-width: 36px;
+  }
+
+  .storePurchaseOverlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  .storePurchaseDialog {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 22px 22px 0 0;
+    padding: 16px;
+  }
+
+  .storePurchaseSummary,
+  .storeCouponRow {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .storePurchaseSummary > *,
+  .storeCouponRow > * {
+    width: 100%;
+  }
+
+  .storePaymentPicker > div {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .topbar,
+  .storePurchaseOverlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

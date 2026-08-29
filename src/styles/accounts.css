@@ -1,0 +1,1413 @@
+.accountsWorkspace {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  grid-template-columns: clamp(220px, 17vw, 260px) minmax(520px, 1fr) clamp(330px, 25vw, 410px);
+  gap: 16px;
+  overflow: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line) 78%, var(--subtle) 22%) transparent;
+}
+
+.accountsWorkspace::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.accountsWorkspace::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 78%, var(--subtle) 22%);
+}
+
+.accountOverviewRail,
+.accountListStack,
+.accountListPanel,
+.accountDetailPanel {
+  min-width: 0;
+  min-height: 0;
+}
+
+.accountOverviewRail {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  align-content: start;
+  gap: 12px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+
+.accountListStack {
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 12px;
+  overflow: hidden;
+}
+
+.accountListLeading {
+  min-width: 0;
+}
+
+.accountOverviewRail .metaStrip {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.accountOverviewRail .metaPill {
+  min-width: 0;
+  min-height: 96px;
+  grid-template-columns: 1fr;
+  justify-items: start;
+  align-content: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.accountOverviewRail .metricIcon {
+  width: 34px;
+  height: 34px;
+}
+
+.accountOverviewRail .metricCopy {
+  width: 100%;
+}
+
+.accountOverviewRail .accountTokenUsageStrip {
+  min-height: 0;
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--section-line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--brand) 3%, var(--bg-0));
+  box-shadow:
+    0 18px 42px color-mix(in srgb, #0f172a 7%, transparent),
+    inset 0 1px var(--surface-highlight-strong);
+}
+
+.accountOverviewRail .accountTokenUsageStrip > strong {
+  font-size: 0.82rem;
+}
+
+.accountOverviewRail .accountTokenUsageItems {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 9px;
+}
+
+.accountOverviewRail .accountTokenUsageItem {
+  min-height: 58px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 7px;
+  border-radius: 13px;
+  padding: 10px 12px;
+}
+
+.accountOverviewRail .accountTokenUsageItem b {
+  font-size: 0.9rem;
+}
+
+.accountOverviewRail .accountTokenUsageActions {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: stretch;
+}
+
+.accountOverviewRail button.accountTokenExportButton {
+  width: 100%;
+}
+
+.accountListPanel,
+.accountDetailPanel {
+  border: 1px solid var(--section-line);
+  border-radius: 20px;
+  background: var(--section-card-surface);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.accountListPanel {
+  container-name: account-list;
+  container-type: inline-size;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.accountToolbar {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto minmax(300px, auto);
+  gap: 10px;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--section-line);
+  background: color-mix(in srgb, var(--surface-tint) 72%, transparent);
+}
+
+.accountSearch {
+  min-width: 0;
+  height: 40px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 14px;
+  background: var(--bg-0);
+  box-shadow: inset 0 1px var(--surface-highlight-strong);
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.accountSearch input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: none;
+  color: var(--ink);
+  background: transparent;
+  font: 600 0.86rem/1 var(--font-ui);
+}
+
+.accountSearch input::placeholder {
+  color: var(--muted);
+}
+
+.accountFilters {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.accountFilters select {
+  height: 40px;
+  min-width: 96px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 34px 0 14px;
+  color: color-mix(in srgb, var(--ink) 78%, var(--subtle) 22%);
+  background:
+    linear-gradient(45deg, transparent 50%, var(--subtle) 50%) right 15px center / 6px 6px no-repeat,
+    linear-gradient(135deg, var(--subtle) 50%, transparent 50%) right 10px center / 6px 6px no-repeat,
+    var(--bg-0);
+  box-shadow: inset 0 1px var(--surface-highlight-strong);
+  font: 700 0.82rem/1 var(--font-ui);
+  appearance: none;
+}
+
+.accountToolbarActions {
+  min-width: 0;
+}
+
+.accountToolbarActions .importBar {
+  align-self: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.accountToolbarActions .importSmartSwitch,
+.accountToolbarActions .importPrimary,
+.accountToolbarActions .importRelay {
+  min-width: 96px;
+  min-height: 40px;
+  padding: 0 12px;
+  font-size: 0.78rem;
+}
+
+@container account-list (max-width: 860px) {
+  .accountToolbar {
+    grid-template-columns: minmax(180px, 1fr) auto;
+    grid-template-areas:
+      "search filters"
+      "actions actions";
+  }
+
+  .accountSearch {
+    grid-area: search;
+  }
+
+  .accountFilters {
+    grid-area: filters;
+  }
+
+  .accountToolbarActions {
+    grid-area: actions;
+  }
+
+  .accountToolbarActions .importBar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container account-list (max-width: 680px) {
+  .accountToolbar {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "search"
+      "filters"
+      "actions";
+  }
+
+  .accountFilters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .accountFilters select {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .accountListFrame {
+    --account-row-columns: minmax(0, 1fr) auto;
+  }
+
+  .accountRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "identity actions"
+      "five five"
+      "week week"
+      "reset reset";
+    align-items: start;
+    gap: 12px;
+  }
+
+  .accountRow .accountIdentityCell { grid-area: identity; }
+  .accountUsageFive { grid-area: five; }
+  .accountUsageWeek { grid-area: week; }
+  .accountRow .resetCell { grid-area: reset; }
+  .accountRow .rowActions { grid-area: actions; }
+}
+
+.accountListFrame {
+  --account-row-columns: minmax(260px, 1.5fr) minmax(108px, 0.66fr) minmax(108px, 0.66fr) minmax(96px, 0.56fr) minmax(106px, auto);
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.accountTokenUsageStrip {
+  min-width: 0;
+  min-height: 42px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 16px;
+  border-bottom: 1px solid var(--section-line);
+  background: color-mix(in srgb, var(--bg-0) 82%, var(--surface-tint) 18%);
+}
+
+.accountTokenUsageStrip > strong {
+  color: var(--ink);
+  font: 850 0.76rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.accountTokenUsageItems {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.accountTokenUsageItem {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line) 82%);
+  border-radius: 8px;
+  padding: 0 8px;
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface-tint) 94%);
+}
+
+.accountTokenUsageItem em {
+  color: var(--subtle);
+  font: 800 0.62rem/1 var(--font-ui);
+  font-style: normal;
+}
+
+.accountTokenUsageItem b {
+  color: var(--ink);
+  font: 850 0.68rem/1 var(--font-mono);
+}
+
+.accountTokenUsageError {
+  color: var(--danger);
+  font: 750 0.66rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.accountTokenUsageActions {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+button.accountTokenExportButton {
+  min-width: 112px;
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 8px;
+  padding: 0 12px;
+  font: 850 0.72rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.accountTokenExportButton .actionIconGlyph {
+  width: 15px;
+  height: 15px;
+}
+
+.accountRows {
+  min-height: 0;
+  padding: 8px 12px 12px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--line) 80%, var(--subtle) 20%) transparent;
+}
+
+.accountRows::-webkit-scrollbar {
+  width: 8px;
+}
+
+.accountRows::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--line) 76%, var(--subtle) 24%);
+}
+
+.accountListHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: none;
+  grid-template-columns: var(--account-row-columns);
+  gap: 8px;
+  align-items: center;
+  padding: 8px 20px 6px;
+  color: var(--subtle);
+  background: var(--section-card-surface);
+  font: 750 0.66rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.accountListHeader span:last-child {
+  text-align: right;
+}
+
+.accountRow {
+  position: relative;
+  min-width: 0;
+  min-height: 76px;
+  display: grid;
+  grid-template-columns: var(--account-row-columns);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 7px 10px 7px 12px;
+  background: var(--card);
+  cursor: pointer;
+  outline: none;
+  animation: riseIn 200ms ease both;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.accountRow:hover {
+  border-color: color-mix(in srgb, var(--line) 78%, var(--brand) 22%);
+  background: color-mix(in srgb, var(--card) 94%, var(--surface-tint) 6%);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.04);
+}
+
+.accountRow:focus-visible {
+  border-color: var(--brand);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--brand) 16%, transparent),
+    0 10px 20px rgba(37, 99, 235, 0.08);
+}
+
+.accountRow.isSelected {
+  border-color: color-mix(in srgb, var(--brand) 68%, var(--line) 32%);
+  background: color-mix(in srgb, var(--card) 90%, var(--brand-soft) 10%);
+  box-shadow:
+    inset 2px 0 0 var(--brand),
+    0 8px 18px rgba(37, 99, 235, 0.06);
+}
+
+.accountRow.isMenuOpen {
+  z-index: 20;
+}
+
+.accountIdentityCell {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.accountAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #1d4ed8;
+  background: #dbeafe;
+  font: 800 1rem/1 var(--font-ui);
+}
+
+.accountAvatar.tone-team {
+  color: #15803d;
+  background: #dcfce7;
+}
+
+.accountAvatar.tone-pro {
+  color: #1d4ed8;
+  background: #dbeafe;
+}
+
+.accountAvatar.tone-plus {
+  color: #7c3aed;
+  background: #ede9fe;
+}
+
+.accountAvatar.tone-api {
+  color: #0369a1;
+  background: #e0f2fe;
+}
+
+.accountAvatar.tone-enterprise {
+  color: #b45309;
+  background: #fef3c7;
+}
+
+.accountAvatar.tone-business {
+  color: #0f766e;
+  background: #ccfbf1;
+}
+
+.accountAvatar.tone-free,
+.accountAvatar.tone-unknown {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+:root[data-theme="dark"] .accountAvatar {
+  background: rgba(96, 165, 250, 0.16);
+  color: #bfdbfe;
+}
+
+:root[data-theme="dark"] .accountAvatar.tone-team {
+  color: #bbf7d0;
+  background: rgba(74, 222, 128, 0.16);
+}
+
+:root[data-theme="dark"] .accountAvatar.tone-plus {
+  color: #ddd6fe;
+  background: rgba(167, 139, 250, 0.16);
+}
+
+:root[data-theme="dark"] .accountAvatar.tone-enterprise {
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.16);
+}
+
+.detailAvatar {
+  width: 54px;
+  height: 54px;
+  font-size: 1.08rem;
+}
+
+.accountIdentityText {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.accountTitleLine {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
+.accountNameButton {
+  min-width: 0;
+  width: 100%;
+  min-height: 24px;
+  border: 0;
+  border-radius: 6px;
+  padding: 0;
+  justify-content: start;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+  font: 800 0.9rem/1.15 var(--font-ui);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.accountNameButton:hover,
+.accountNameButton:focus-visible {
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--brand);
+}
+
+.planChip {
+  min-height: 24px;
+  border: 1px solid rgba(37, 99, 235, 0.24);
+  border-radius: 7px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #15803d;
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: none;
+  font: 800 0.64rem/1 var(--font-ui);
+}
+
+.planChip:hover,
+.planChip:focus-visible {
+  transform: none;
+  box-shadow: none;
+}
+
+.planChip.tone-pro {
+  border-color: rgba(245, 158, 11, 0.58);
+  color: #f8d36b;
+  background: linear-gradient(135deg, #111827 0%, #020617 58%, #3b2f11 100%);
+}
+
+.planChip.tone-plus {
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.24);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.planChip.tone-team {
+  color: #0f766e;
+  border-color: rgba(20, 184, 166, 0.28);
+  background: rgba(20, 184, 166, 0.1);
+}
+
+.planChip.tone-free,
+.planChip.tone-unknown {
+  color: #475569;
+  border-color: rgba(100, 116, 139, 0.24);
+  background: rgba(148, 163, 184, 0.12);
+}
+
+.planChip.tone-api {
+  color: #0369a1;
+  border-color: rgba(14, 165, 233, 0.26);
+  background: rgba(14, 165, 233, 0.1);
+}
+
+.planChip.tone-enterprise {
+  color: #b45309;
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.planChip.tone-business {
+  color: #0f766e;
+  border-color: rgba(45, 212, 191, 0.26);
+  background: rgba(45, 212, 191, 0.1);
+}
+
+.planChip.isSelected,
+.planChip.isStatic {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+
+.statusText {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: var(--subtle);
+  font: 700 0.76rem/1 var(--font-ui);
+}
+
+.accountStateLine {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+}
+
+.accountStateLine > .statusText {
+  flex: 0 0 7.5rem;
+}
+
+:root:lang(zh-CN) .accountStateLine > .statusText {
+  flex-basis: 4.5rem;
+}
+
+.usageFreshnessBadge {
+  min-width: 0;
+  max-width: 100%;
+  min-height: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 2px 7px;
+  color: var(--subtle);
+  background: color-mix(in srgb, var(--surface-tint) 58%, transparent 42%);
+  font: 650 0.6rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.usageFreshnessBadge > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usageFreshnessDot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--subtle);
+}
+
+.usageFreshnessBadge.tone-refreshing {
+  border-color: color-mix(in srgb, var(--brand) 18%, transparent 82%);
+  color: color-mix(in srgb, var(--brand) 72%, var(--ink) 28%);
+  background: color-mix(in srgb, var(--brand-soft) 58%, transparent 42%);
+}
+
+.usageFreshnessBadge.tone-refreshing .usageFreshnessDot {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid color-mix(in srgb, var(--brand) 28%, transparent 72%);
+  border-top-color: var(--brand);
+  background: transparent;
+  animation: iconSpin 800ms linear infinite;
+}
+
+.usageFreshnessBadge.tone-error {
+  border-color: color-mix(in srgb, var(--danger) 18%, transparent 82%);
+  color: color-mix(in srgb, var(--danger) 76%, var(--ink) 24%);
+  background: color-mix(in srgb, var(--danger) 8%, transparent 92%);
+}
+
+.usageFreshnessBadge.tone-error .usageFreshnessDot {
+  background: var(--danger);
+}
+
+.statusLabel {
+  flex: 0 0 auto;
+}
+
+.statusReason {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: currentColor;
+  opacity: 0.78;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--ok);
+}
+
+.statusText.status-using .statusDot {
+  background: var(--brand);
+}
+
+.statusText.status-available .statusDot {
+  background: var(--ok);
+}
+
+.statusText.status-low .statusDot {
+  background: var(--warning);
+}
+
+.statusText.status-exhausted .statusDot {
+  background: #b91c1c;
+}
+
+.statusText.status-issue .statusDot {
+  background: #e11d48;
+}
+
+.statusDot.status-using {
+  background: var(--brand);
+}
+
+.statusDot.status-available {
+  background: var(--ok);
+}
+
+.statusDot.status-low {
+  background: var(--warning);
+}
+
+.statusDot.status-exhausted {
+  background: #b91c1c;
+}
+
+.statusDot.status-issue {
+  background: #e11d48;
+}
+
+.statusText.status-using {
+  color: color-mix(in srgb, var(--brand) 78%, var(--ink) 22%);
+}
+
+.statusText.status-available {
+  color: color-mix(in srgb, var(--ok) 72%, var(--ink) 28%);
+}
+
+.statusText.status-low {
+  color: color-mix(in srgb, var(--warning) 74%, var(--ink) 26%);
+}
+
+.statusText.status-exhausted {
+  color: #b91c1c;
+}
+
+.statusText.status-issue {
+  color: #e11d48;
+}
+
+.usageMeter {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.usageMeterHead,
+.usageMeterFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.usageMeterHead span {
+  color: var(--subtle);
+  font: 700 0.68rem/1 var(--font-ui);
+}
+
+.usageMeterHead strong {
+  color: var(--ink);
+  font: 800 0.78rem/1 var(--font-mono);
+}
+
+.usageBar {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bar-track);
+}
+
+.usageBar span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: inherit;
+  background: var(--brand);
+  transition: width 220ms ease;
+}
+
+.usageMeter.tone-warning .usageBar span {
+  background: var(--warning);
+}
+
+.usageMeter.tone-danger .usageBar span {
+  background: var(--danger);
+}
+
+.usageMeterFoot span {
+  color: var(--subtle);
+  font: 650 0.62rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.resetCell {
+  display: grid;
+  gap: 6px;
+}
+
+.resetCell span,
+.resetCell strong {
+  color: var(--ink);
+  font: 750 0.76rem/1.1 var(--font-mono);
+  white-space: nowrap;
+}
+
+.resetCell strong {
+  color: var(--subtle);
+  font-weight: 650;
+}
+
+.rowActions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  justify-self: end;
+  gap: 6px;
+}
+
+.rowSwitchButton {
+  min-width: 58px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 0.76rem;
+}
+
+.rowMoreButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 10px;
+}
+
+.rowMoreButton.isPending {
+  border-color: color-mix(in srgb, var(--danger) 36%, var(--line) 64%);
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface-tint) 90%);
+}
+
+.rowActionMenu {
+  position: absolute;
+  top: 50%;
+  right: 38px;
+  z-index: 40;
+  width: 138px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 6px;
+  display: grid;
+  gap: 4px;
+  background: var(--card);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+  transform: translateY(-50%);
+}
+
+.rowActionMenuPortal {
+  position: fixed;
+  top: auto;
+  right: auto;
+  z-index: 1000;
+  transform: none;
+}
+
+.rowActionMenu button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 9px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  justify-content: start;
+  color: var(--ink);
+  background: transparent;
+  box-shadow: none;
+  font: 750 0.72rem/1 var(--font-ui);
+  text-align: left;
+}
+
+.rowActionMenu button:hover,
+.rowActionMenu button:focus-visible {
+  transform: none;
+  background: color-mix(in srgb, var(--brand-soft) 54%, transparent);
+}
+
+.rowActionMenu .dangerMenuItem {
+  color: var(--danger);
+}
+
+.rowIcon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.accountDetailPanel {
+  padding: 16px;
+  display: grid;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 20px;
+  overflow: auto;
+}
+
+.detailHeader {
+  min-height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.detailIdentity {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.detailTitleBlock {
+  min-width: 0;
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+}
+
+.detailTitleBlock h2 {
+  max-width: 220px;
+  margin: 0;
+  color: var(--ink);
+  font: 850 0.96rem/1.25 var(--font-ui);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detailEditButton {
+  flex: 0 0 auto;
+  min-width: 84px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  border-radius: 999px;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.detailAliasEditor {
+  width: min(300px, 100%);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 6px;
+}
+
+.detailAliasEditor input {
+  min-width: 0;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 10px;
+  background: var(--bg-0);
+  color: var(--ink);
+  outline: none;
+  font: 700 0.78rem/1 var(--font-ui);
+}
+
+.detailAliasEditor button {
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 0.72rem;
+}
+
+.detailCard,
+.detailMetaGrid {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card) 94%, var(--bg-1) 6%);
+  box-shadow: inset 0 1px var(--surface-highlight-soft);
+}
+
+.detailCard {
+  display: grid;
+  gap: 16px;
+  padding: 16px;
+}
+
+.detailCard h3,
+.detailSectionTitle h3 {
+  margin: 0;
+  color: var(--ink);
+  font: 850 0.9rem/1.15 var(--font-ui);
+}
+
+.detailCardTitle {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detailMetaGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  overflow: hidden;
+}
+
+.detailMetaGrid div {
+  min-width: 0;
+  min-height: 64px;
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+}
+
+.detailMetaGrid div:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+
+.detailMetaGrid div:nth-child(n + 3) {
+  border-top: 1px solid var(--line);
+}
+
+.recentSwitchCard {
+  min-height: 168px;
+}
+
+.detailMetaGrid span {
+  color: var(--subtle);
+  font: 750 0.68rem/1 var(--font-ui);
+}
+
+.detailMetaGrid strong {
+  min-width: 0;
+  color: var(--ink);
+  font: 750 0.76rem/1.25 var(--font-ui);
+  overflow-wrap: anywhere;
+}
+
+.detailSectionTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resetCreditsCard {
+  gap: 12px;
+}
+
+.resetCreditsCount {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--line) 80%);
+  border-radius: 8px;
+  padding: 0 9px;
+  color: color-mix(in srgb, var(--brand) 82%, var(--ink) 18%);
+  background: color-mix(in srgb, var(--brand-soft) 68%, transparent);
+  font: 850 0.66rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.resetCreditList {
+  display: grid;
+  gap: 8px;
+}
+
+.resetCreditItem {
+  min-width: 0;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border: 1px solid color-mix(in srgb, var(--line) 80%, var(--brand) 20%);
+  border-radius: 12px;
+  padding: 8px 10px;
+  background: color-mix(in srgb, var(--card) 92%, var(--surface-tint) 8%);
+}
+
+.resetCreditIndex {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: var(--brand);
+  background: color-mix(in srgb, var(--brand-soft) 78%, transparent);
+  font: 850 0.76rem/1 var(--font-mono);
+}
+
+.resetCreditItem div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+}
+
+.resetCreditItem span:not(.resetCreditIndex) {
+  color: var(--subtle);
+  font: 750 0.66rem/1 var(--font-ui);
+}
+
+.resetCreditItem strong {
+  min-width: 0;
+  color: var(--ink);
+  font: 760 0.78rem/1.2 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+
+.resetCreditsToggle {
+  min-height: 34px;
+  justify-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 10px;
+  color: color-mix(in srgb, var(--brand) 76%, var(--ink) 24%);
+  font: 850 0.72rem/1 var(--font-ui);
+}
+
+.resetCreditsToggleIcon {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 140ms ease;
+}
+
+.resetCreditsToggleIcon.isExpanded {
+  transform: rotate(180deg);
+}
+
+.recentSwitchList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.recentSwitchList li {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(82px, auto) minmax(90px, auto) minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+  color: var(--subtle);
+  font: 650 0.72rem/1.25 var(--font-ui);
+}
+
+.recentSwitchEmpty {
+  margin: 0;
+  min-height: 48px;
+  display: grid;
+  align-items: center;
+  color: var(--subtle);
+  font: 700 0.76rem/1.4 var(--font-ui);
+}
+
+.recentSwitchList strong {
+  color: color-mix(in srgb, var(--ink) 72%, var(--subtle) 28%);
+  font: 700 0.72rem/1.25 var(--font-mono);
+  white-space: nowrap;
+}
+
+.recentSwitchList em {
+  min-width: 0;
+  color: var(--subtle);
+  font-style: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.quickActionGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.quickActionGrid button {
+  min-width: 0;
+  min-height: 64px;
+  border-radius: 12px;
+  padding: 9px 7px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 7px;
+  color: var(--subtle);
+  font: 750 0.68rem/1.15 var(--font-ui);
+  text-align: center;
+}
+
+.quickActionGrid button span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.quickActionGrid .dangerAction {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 18%, var(--line) 82%);
+  background: color-mix(in srgb, var(--danger) 6%, var(--surface-tint) 94%);
+}
+
+.actionIconGlyph {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.detailEmpty,
+.accountEmptyState {
+  min-height: 260px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 10px;
+  padding: 28px;
+  text-align: center;
+  color: var(--subtle);
+}
+
+.detailEmpty h3,
+.accountEmptyState h3 {
+  margin: 0;
+  color: var(--ink);
+  font: 850 1rem/1.2 var(--font-ui);
+}
+
+.detailEmpty p,
+.accountEmptyState p {
+  margin: 0;
+  max-width: 32ch;
+  font: 600 0.84rem/1.55 var(--font-ui);
+}
+
+/* Unified account workspace */
+.accountListPanel,
+.accountDetailPanel {
+  border-radius: 22px;
+  box-shadow:
+    0 18px 42px color-mix(in srgb, #0f172a 7%, transparent),
+    inset 0 1px var(--surface-highlight-strong);
+}
+
+.accountListPanel {
+  background:
+    radial-gradient(circle at 98% 0%, color-mix(in srgb, var(--brand) 8%, transparent), transparent 28%),
+    var(--section-card-surface);
+}
+
+.accountToolbar {
+  padding: 15px 16px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--brand) 6%, var(--surface-tint)), color-mix(in srgb, #7c5cff 4%, var(--surface-tint)));
+}
+
+.accountSearch:focus-within {
+  border-color: color-mix(in srgb, var(--brand) 62%, var(--line));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent);
+}
+
+.accountRow {
+  overflow: visible;
+  border-radius: 14px;
+  box-shadow: inset 0 1px var(--surface-highlight-soft);
+}
+
+.accountRow::before {
+  position: absolute;
+  inset: 12px auto 12px -1px;
+  width: 3px;
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+  transition: background 160ms ease;
+}
+
+.accountRow:hover::before,
+.accountRow.isSelected::before {
+  background: linear-gradient(180deg, var(--brand), #7c5cff);
+}
+
+.accountRow.isSelected {
+  box-shadow:
+    0 12px 28px color-mix(in srgb, var(--brand) 11%, transparent),
+    inset 0 1px var(--surface-highlight-strong);
+}
+
+.accountAvatar {
+  border-radius: 15px;
+  background: linear-gradient(145deg, color-mix(in srgb, #3478f6 18%, var(--card)), color-mix(in srgb, #7c5cff 15%, var(--card)));
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--brand) 13%, transparent);
+}
+
+.accountTokenUsageStrip {
+  background: color-mix(in srgb, var(--brand) 3%, var(--bg-0));
+}
+
+.accountTokenUsageItem {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface-tint));
+}
+
+@media (max-width: 760px) {
+  .accountListPanel,
+  .accountDetailPanel { border-radius: 18px; }
+  .accountToolbar { padding: 12px; }
+}
