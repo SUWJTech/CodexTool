@@ -89,13 +89,14 @@ Windows SmartScreen 可能会提示未知发布者；当前构建未配置商业
 ## 常见问题排查 (Troubleshooting)
 
 #### macOS 提示“应用已损坏，无法打开”？
+#### macOS 提示“Apple无法验证“CodexTool.app””？
 
 由于 macOS 的安全机制，非 App Store 下载的应用可能会触发此提示。当前开源发布流程尚未接入 Apple Developer ID 签名和公证，因此部分系统版本会显示更严格的 Gatekeeper 提示。您可以按照以下步骤快速修复：
 
 1. **命令行修复**（推荐）：打开终端，执行以下命令：
 
    ```bash
-   sudo xattr -rd com.apple.quarantine "/Applications/CodexTool.app"
+   sudo xattr -d com.apple.quarantine "/Applications/CodexTool.app"
    ```
 
    > **注意**：如果您修改了应用名称，请在命令中相应调整路径。
