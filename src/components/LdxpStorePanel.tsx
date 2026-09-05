@@ -48,7 +48,7 @@ type LdxpStorePanelProps = {
   onOpenExternalUrl: (url: string) => void;
 };
 
-const SHOP_URL = "https://pay.ldxp.cn/shop/CodexTool";
+const SHOP_URL = "https://wzyp.cn/shop/CodexTool";
 
 const PREVIEW_CATALOG: LdxpCatalog = {
   provider: "ldxp",

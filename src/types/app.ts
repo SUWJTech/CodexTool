@@ -216,6 +216,11 @@ export type CreateApiAccountInput = {
   forceSave: boolean;
 };
 
+export type UpdateApiAccountInput = {
+  accountId: string;
+  input: CreateApiAccountInput;
+};
+
 export type TestApiAccountConnectionInput = {
   label: string;
   baseUrl: string;
@@ -304,6 +309,7 @@ export type AppSettings = {
   codexAnalyticsWeeklyBudgetUsd: number | null;
   locale: AppLocale;
   skippedUpdateVersion: string | null;
+  skillsmpApiKey: string | null;
 };
 
 export type UpdateSettingsOptions = {

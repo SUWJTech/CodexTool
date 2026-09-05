@@ -476,6 +476,8 @@ pub(crate) struct AppSettings {
     pub(crate) codex_analytics_weekly_budget_usd: Option<f64>,
     pub(crate) locale: AppLocale,
     pub(crate) skipped_update_version: Option<String>,
+    #[serde(default)]
+    pub(crate) skillsmp_api_key: Option<String>,
 }
 
 impl Default for AppSettings {
@@ -503,6 +505,7 @@ impl Default for AppSettings {
             codex_analytics_weekly_budget_usd: None,
             locale: AppLocale::default(),
             skipped_update_version: None,
+            skillsmp_api_key: None,
         }
     }
 }
@@ -532,6 +535,7 @@ pub(crate) struct AppSettingsPatch {
     pub(crate) codex_analytics_weekly_budget_usd: Option<Option<f64>>,
     pub(crate) locale: Option<AppLocale>,
     pub(crate) skipped_update_version: Option<Option<String>>,
+    pub(crate) skillsmp_api_key: Option<Option<String>>,
 }
 
 impl StoredAccount {

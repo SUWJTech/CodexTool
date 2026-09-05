@@ -217,6 +217,91 @@ pub(crate) async fn create_api_account_internal(
     Ok(summary)
 }
 
+pub(crate) async fn update_api_account_internal(
+    app: &AppHandle,
+    state: &AppState,
+    account_id: &str,
+    input: CreateApiAccountInput,
+) -> Result<AccountSummary, String> {
+    let label = profile_files::normalize_relay_label(&input.label)?;
+    let base_url = profile_files::normalize_relay_base_url(&input.base_url)?;
+    let model_name = profile_files::normalize_relay_model_name(&input.model_name)?;
+
+    // The API key is intentionally omitted from AccountSummary. An empty key in
+    // the edit form therefore means “keep the key already stored for this relay”.
+    let existing_api_key = {
+        let _guard = state.store_lock.lock().await;
+        let store = load_store(app)?;
+        let account = store
+            .accounts
+            .iter()
+            .find(|account| account.id == account_id)
+            .ok_or_else(|| "未找到要修改的中转账号".to_string())?;
+        if !matches!(account.source_kind, AccountSourceKind::Relay) {
+            return Err("只有中转账号可以修改 API 配置".to_string());
+        }
+        account.api_key.clone()
+    };
+    let api_key = if input.api_key.trim().is_empty() {
+        existing_api_key
+            .ok_or_else(|| "当前中转账号没有可保留的 API Key，请重新填写".to_string())?
+    } else {
+        profile_files::normalize_relay_api_key(&input.api_key)?
+    };
+
+    let (last_validated_at, balance_text, profile_last_validation_error) = if input.force_save {
+        (None, None, None)
+    } else {
+        let balance =
+            profile_files::validate_relay_target(&base_url, &api_key, &model_name).await?;
+        (Some(now_unix_seconds()), balance, None)
+    };
+
+    let current_account_key = current_auth_account_key();
+    let current_variant_key = current_auth_variant_key();
+    let summary = {
+        let _guard = state.store_lock.lock().await;
+        let mut store = load_store(app)?;
+        let account = store
+            .accounts
+            .iter_mut()
+            .find(|account| account.id == account_id)
+            .ok_or_else(|| "未找到要修改的中转账号".to_string())?;
+        if !matches!(account.source_kind, AccountSourceKind::Relay) {
+            return Err("只有中转账号可以修改 API 配置".to_string());
+        }
+
+        account.label = label;
+        account.api_base_url = Some(base_url);
+        account.api_key = Some(api_key.clone());
+        account.model_name = Some(model_name);
+        account.auth_json = profile_files::build_api_auth_json(&api_key);
+        account.balance_text = balance_text;
+        account.profile_last_validated_at = last_validated_at;
+        account.profile_last_validation_error = profile_last_validation_error;
+        account.updated_at = now_unix_seconds();
+        account.usage = None;
+        account.usage_error = None;
+        account.auth_refresh_blocked = false;
+        account.auth_refresh_error = None;
+
+        let store_path = account_store_path_from_data_dir(&app_paths::app_data_dir(app)?);
+        let should_apply_current = store.settings.active_account_id.as_deref() == Some(account_id);
+        profile_files::sync_account_profile_in_store_path(&store_path, account)?;
+        if should_apply_current {
+            profile_files::apply_account_profile(account)?;
+        }
+        let summary = account.to_summary(
+            current_account_key.as_deref(),
+            current_variant_key.as_deref(),
+        );
+        save_store(app, &store)?;
+        summary
+    };
+
+    Ok(summary)
+}
+
 pub(crate) async fn test_api_account_connection_internal(
     input: TestApiAccountConnectionInput,
 ) -> Result<TestApiAccountConnectionResult, String> {

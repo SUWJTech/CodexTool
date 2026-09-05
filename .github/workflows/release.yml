@@ -44,7 +44,13 @@ jobs:
         with:
           tagName: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}
           releaseName: "CodexTool ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}"
-          releaseBody: "CodexTool desktop release. See the repository README for features, installation and verification notes."
+          releaseBody: |
+            ## CodexTool 0.1.5
+
+            - 重构 Skill 仓库：支持 skills.sh 榜单、搜索、Git 安装和本地启用/禁用管理。
+            - 新增 Skill 详情卡片，直接读取仓库 SKILL.md 展示完整介绍。
+            - 优化 Skill 下载链路，使用 GitHub HTTPS 定向下载并保留 Git 备用通道。
+            - 完善中转账号编辑和 CodexTool 商城地址，保持 Windows 与 macOS 原有功能兼容。
           releaseDraft: false
           prerelease: false
           args: "--bundles nsis"
@@ -69,3 +75,48 @@ jobs:
           $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
           $tag = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.release_tag }}" } else { "${{ github.ref_name }}" }
           gh release upload $tag "release/CodexTool-$version-portable.zip" --clobber
+
+  build-macos:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install Rust stable for Apple Silicon
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          shared-key: macos-aarch64
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build and publish macOS release
+        uses: tauri-apps/tauri-action@v0.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLE_SIGNING_IDENTITY: "-"
+        with:
+          tagName: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}
+          releaseName: "CodexTool ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag || github.ref_name }}"
+          releaseBody: |
+            ## CodexTool 0.1.5
+
+            - 重构 Skill 仓库：支持 skills.sh 榜单、搜索、Git 安装和本地启用/禁用管理。
+            - 新增 Skill 详情卡片，直接读取仓库 SKILL.md 展示完整介绍。
+            - 优化 Skill 下载链路，使用 GitHub HTTPS 定向下载并保留 Git 备用通道。
+            - 完善中转账号编辑和 CodexTool 商城地址，保持 Windows 与 macOS 原有功能兼容。
+          releaseDraft: false
+          prerelease: false
+          args: "--target aarch64-apple-darwin --bundles dmg"

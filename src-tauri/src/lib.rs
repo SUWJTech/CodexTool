@@ -620,16 +620,64 @@ async fn start_oauth_callback_listener(
 // 核心业务逻辑放在 account_service/auth/store/tray 等模块。
 
 #[tauri::command]
-fn list_builtin_skills(app: AppHandle) -> Result<Vec<skill_market::BuiltinSkillEntry>, String> {
-    skill_market::list_builtin_skills(&app)
+async fn search_skill_market(
+    query: String,
+    provider: String,
+    api_key: Option<String>,
+) -> Result<Vec<skill_market::RemoteSkillEntry>, String> {
+    skill_market::search_skill_market(&query, &provider, api_key.as_deref()).await
 }
 
 #[tauri::command]
-fn install_builtin_skill(
-    app: AppHandle,
-    name: String,
-) -> Result<skill_market::SkillInstallResult, String> {
-    skill_market::install_builtin_skill(&app, &name)
+async fn list_skills_sh(view: String) -> Result<Vec<skill_market::RemoteSkillEntry>, String> {
+    skill_market::list_skills_sh(&view).await
+}
+
+#[tauri::command]
+async fn get_remote_skill_detail(
+    raw_url: String,
+    skill_name: String,
+) -> Result<skill_market::RemoteSkillDetail, String> {
+    skill_market::get_remote_skill_detail(&raw_url, &skill_name).await
+}
+
+#[tauri::command]
+fn list_local_skills() -> Result<Vec<skill_market::LocalSkillEntry>, String> {
+    skill_market::list_local_skills()
+}
+
+#[tauri::command]
+fn set_local_skill_enabled(
+    id: String,
+    enabled: bool,
+) -> Result<Vec<skill_market::LocalSkillEntry>, String> {
+    skill_market::set_local_skill_enabled(&id, enabled)
+}
+
+#[tauri::command]
+async fn install_skill_from_git(
+    raw_url: String,
+    skill_name: Option<String>,
+) -> Result<skill_market::GitInstallResult, String> {
+    let api_error =
+        match skill_market::install_skill_from_github_api(&raw_url, skill_name.as_deref()).await {
+            skill_market::GithubInstallAttempt::Installed(result) => return Ok(result),
+            skill_market::GithubInstallAttempt::Failed(error) => return Err(error),
+            skill_market::GithubInstallAttempt::NotApplicable => None,
+            skill_market::GithubInstallAttempt::RetryWithGit(error) => Some(error),
+        };
+    let git_result = tauri::async_runtime::spawn_blocking(move || {
+        skill_market::install_skill_from_git(&raw_url, skill_name.as_deref())
+    })
+    .await
+    .map_err(|error| format!("Skill 安装任务异常结束: {error}"))?;
+    match (api_error, git_result) {
+        (_, Ok(result)) => Ok(result),
+        (Some(api_error), Err(git_error)) => Err(format!(
+            "GitHub HTTPS 下载失败：{api_error}\nGit 备用下载失败：{git_error}"
+        )),
+        (None, Err(error)) => Err(error),
+    }
 }
 
 #[tauri::command]
@@ -687,6 +735,20 @@ async fn create_api_account(
     input: CreateApiAccountInput,
 ) -> Result<AccountSummary, String> {
     let summary = account_service::create_api_account_internal(&app, state.inner(), input).await?;
+    let _ = tray::refresh_usage_surfaces_snapshot(&app);
+    Ok(summary)
+}
+
+#[tauri::command]
+async fn update_api_account(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    account_id: String,
+    input: CreateApiAccountInput,
+) -> Result<AccountSummary, String> {
+    let summary =
+        account_service::update_api_account_internal(&app, state.inner(), &account_id, input)
+            .await?;
     let _ = tray::refresh_usage_surfaces_snapshot(&app);
     Ok(summary)
 }
@@ -2788,8 +2850,12 @@ pub fn run() {
             create_account_store_order,
             get_account_store_order_status,
             get_ldxp_store_catalog,
-            list_builtin_skills,
-            install_builtin_skill,
+            search_skill_market,
+            list_skills_sh,
+            get_remote_skill_detail,
+            list_local_skills,
+            set_local_skill_enabled,
+            install_skill_from_git,
             get_skin_engine_status,
             install_skin_engine,
             list_skin_gallery,
@@ -2800,6 +2866,7 @@ pub fn run() {
             list_accounts,
             import_current_auth_account,
             create_api_account,
+            update_api_account,
             test_api_account_connection,
             import_auth_json_accounts,
             export_accounts_zip,

@@ -3,9 +3,9 @@ use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::time::Duration;
 
-const LDXP_BASE_URL: &str = "https://pay.ldxp.cn";
+const LDXP_BASE_URL: &str = "https://wzyp.cn";
 const LDXP_SHOP_TOKEN: &str = "CodexTool";
-const LDXP_SHOP_URL: &str = "https://pay.ldxp.cn/shop/CodexTool";
+const LDXP_SHOP_URL: &str = "https://wzyp.cn/shop/CodexTool";
 const GOODS_TYPES: [&str; 4] = ["card", "article", "resource", "equity"];
 
 #[derive(Clone, Serialize)]
@@ -347,7 +347,7 @@ mod tests {
             "name": "测试商品",
             "price": "12.50",
             "description": "<p>自动&nbsp;发货</p>",
-            "link": "https://pay.ldxp.cn/item/abc_123",
+            "link": "https://wzyp.cn/item/abc_123",
             "category": { "id": 20, "name": "Codex 成品" },
             "extend": { "stock_count": 3 }
         });
@@ -362,10 +362,7 @@ mod tests {
     #[test]
     fn rejects_unsafe_product_links_and_keys() {
         let value = json!({ "link": "https://example.com/item/abc" });
-        assert_eq!(
-            safe_purchase_url(&value, "abc"),
-            "https://pay.ldxp.cn/item/abc"
-        );
+        assert_eq!(safe_purchase_url(&value, "abc"), "https://wzyp.cn/item/abc");
         assert!(valid_key("abc-123_X"));
         assert!(!valid_key("../abc"));
     }

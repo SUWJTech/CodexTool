@@ -33,6 +33,10 @@ type AddAccountDialogProps = {
   onCancelOauth: () => Promise<void>;
   onImportCurrentAuth: () => Promise<void>;
   onCreateApiAccount: (input: CreateApiAccountInput) => Promise<void>;
+  onUpdateApiAccount: (
+    accountId: string,
+    input: CreateApiAccountInput,
+  ) => Promise<void>;
   onTestApiConnection: (
     input: TestApiAccountConnectionInput,
   ) => Promise<TestApiAccountConnectionResult>;
@@ -68,6 +72,7 @@ export function AddAccountDialog({
   onCancelOauth,
   onImportCurrentAuth,
   onCreateApiAccount,
+  onUpdateApiAccount,
   onTestApiConnection,
   onImportFiles,
   onClose,
@@ -100,6 +105,8 @@ export function AddAccountDialog({
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const busy = importingAccounts || readingFiles;
+  const editingRelayAccount = reauthorizeAccount?.sourceKind === "relay";
+  const isRelayDialog = mode === "relay" || editingRelayAccount;
   const actionLocked = busy || preparingOauth;
   const closeBlocked = busy;
   const routeSwitchBlocked = busy || oauthWaitingForCallback;
@@ -152,10 +159,21 @@ export function AddAccountDialog({
   }, [closeBlocked, oauthWaitingForCallback, onClose, open, resetOauthState]);
 
   useEffect(() => {
-    if (open && !reauthorizeAccount) {
-      setActiveRoute(mode === "relay" ? "api" : "oauth");
+    if (!open) {
+      return;
     }
-  }, [mode, open, reauthorizeAccount]);
+    setActiveRoute(isRelayDialog ? "api" : "oauth");
+    if (editingRelayAccount && reauthorizeAccount) {
+      setApiForm({
+        label: reauthorizeAccount.label,
+        baseUrl: reauthorizeAccount.apiBaseUrl ?? "",
+        // API keys are deliberately not exposed by the backend summary.
+        apiKey: "",
+        modelName: reauthorizeAccount.modelName ?? "",
+        forceSave: false,
+      });
+    }
+  }, [editingRelayAccount, isRelayDialog, open, reauthorizeAccount]);
 
   const routeOptions = useMemo(() => {
     const oauthRoute = {
@@ -165,17 +183,19 @@ export function AddAccountDialog({
         ? copy.addAccount.reauthorizeOauthDescription
         : copy.addAccount.oauthDescription,
     };
-    if (reauthorizeAccount) {
-      return [oauthRoute];
-    }
-    if (mode === "relay") {
+    if (editingRelayAccount || mode === "relay") {
       return [
         {
           id: "api" as const,
-          label: locale === "zh-CN" ? "添加中转" : "Add relay",
+          label: editingRelayAccount
+            ? locale === "zh-CN" ? "修改中转" : "Edit relay"
+            : locale === "zh-CN" ? "添加中转" : "Add relay",
           description: copy.addAccount.apiDescription,
         },
       ];
+    }
+    if (reauthorizeAccount) {
+      return [oauthRoute];
     }
     return [
       oauthRoute,
@@ -195,16 +215,18 @@ export function AddAccountDialog({
         description: copy.addAccount.uploadDescription,
       },
     ];
-  }, [copy.addAccount, locale, mode, reauthorizeAccount]);
+  }, [copy.addAccount, editingRelayAccount, locale, mode, reauthorizeAccount]);
 
   const activeRouteMeta =
     routeOptions.find((item) => item.id === activeRoute) ?? routeOptions[0];
-  const dialogTitle = mode === "relay"
-    ? locale === "zh-CN" ? "添加中转" : "Add relay"
+  const dialogTitle = isRelayDialog
+    ? editingRelayAccount
+      ? locale === "zh-CN" ? "修改中转" : "Edit relay"
+      : locale === "zh-CN" ? "添加中转" : "Add relay"
     : reauthorizeAccount
       ? copy.addAccount.reauthorizeDialogTitle
       : copy.addAccount.dialogTitle;
-  const dialogSubtitle = mode === "relay"
+  const dialogSubtitle = isRelayDialog
     ? copy.addAccount.apiDescription
     : reauthorizeAccount
       ? copy.addAccount.reauthorizeDialogSubtitle(reauthorizeAccount.label)
@@ -232,11 +254,13 @@ export function AddAccountDialog({
       })),
     [selectedFiles],
   );
-  const apiRequiredMissing =
+  const apiFieldsMissing =
     apiForm.label.trim() === "" ||
     apiForm.baseUrl.trim() === "" ||
-    apiForm.apiKey.trim() === "" ||
     apiForm.modelName.trim() === "";
+  const apiRequiredMissing =
+    apiFieldsMissing || (!editingRelayAccount && apiForm.apiKey.trim() === "");
+  const apiTestMissing = apiFieldsMissing || apiForm.apiKey.trim() === "";
   const apiSubmitDisabled =
     actionLocked || testingApiConnection || apiRequiredMissing;
 
@@ -442,10 +466,12 @@ export function AddAccountDialog({
     setApiInlineError(null);
     setApiInlineSuccess(null);
     try {
-      await onCreateApiAccount({
-        ...apiForm,
-        forceSave,
-      });
+      const input = { ...apiForm, forceSave };
+      if (editingRelayAccount && reauthorizeAccount) {
+        await onUpdateApiAccount(reauthorizeAccount.id, input);
+      } else {
+        await onCreateApiAccount(input);
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setApiInlineError(message);
@@ -456,7 +482,7 @@ export function AddAccountDialog({
   };
 
   const handleTestApiConnection = async () => {
-    if (actionLocked || testingApiConnection || apiRequiredMissing) {
+    if (actionLocked || testingApiConnection || apiTestMissing) {
       return;
     }
 
@@ -514,8 +540,8 @@ export function AddAccountDialog({
           </button>
         </div>
 
-        <div className={`addAccountWorkspace${mode === "relay" ? " isRelayMode" : ""}`}>
-          {mode !== "relay" ? (
+        <div className={`addAccountWorkspace${isRelayDialog ? " isRelayMode" : ""}`}>
+          {!isRelayDialog ? (
             <div
               className="addAccountTabs"
               aria-label={copy.addAccount.tabsAriaLabel}
@@ -782,7 +808,13 @@ export function AddAccountDialog({
                       className="addOauthInput"
                       value={apiForm.apiKey}
                       onChange={handleApiFieldChange("apiKey")}
-                      placeholder={copy.addAccount.apiKeyPlaceholder}
+                      placeholder={
+                        editingRelayAccount
+                          ? locale === "zh-CN"
+                            ? "留空保留当前 API Key，填写则替换"
+                            : "Leave blank to keep the current API key"
+                          : copy.addAccount.apiKeyPlaceholder
+                      }
                       spellCheck={false}
                     />
                   </label>
@@ -824,7 +856,7 @@ export function AddAccountDialog({
                     className="ghost addAccountSecondaryAction"
                     onClick={() => void handleTestApiConnection()}
                     disabled={
-                      actionLocked || testingApiConnection || apiRequiredMissing
+                      actionLocked || testingApiConnection || apiTestMissing
                     }
                   >
                     {testingApiConnection

@@ -106,6 +106,12 @@ pub(crate) async fn update_app_settings_internal(
         if let Some(value) = patch.skipped_update_version {
             store.settings.skipped_update_version = value;
         }
+        if let Some(value) = patch.skillsmp_api_key {
+            store.settings.skillsmp_api_key = value.and_then(|key| {
+                let trimmed = key.trim();
+                (!trimmed.is_empty()).then(|| trimmed.to_string())
+            });
+        }
 
         let settings = store.settings.clone();
         save_store(app, &store)?;

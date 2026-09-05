@@ -88,6 +88,7 @@ function App() {
     onCompleteOauthCallbackLogin,
     onImportCurrentAuth,
     onCreateApiAccount,
+    onUpdateApiAccount,
     onTestApiAccountConnection,
     onImportAuthFiles,
     onExportAccounts,
@@ -217,6 +218,7 @@ function App() {
           onCancelOauth={onCancelOauthLogin}
           onImportCurrentAuth={onImportCurrentAuth}
           onCreateApiAccount={onCreateApiAccount}
+          onUpdateApiAccount={onUpdateApiAccount}
           onTestApiConnection={onTestApiAccountConnection}
           onImportFiles={onImportAuthFiles}
           onClose={onCloseAddDialog}
@@ -305,7 +307,13 @@ function App() {
           ) : activeTab === "store" ? (
             <AccountStorePanel onOpenExternalUrl={(url) => void openExternalUrl(url)} />
           ) : activeTab === "skills" ? (
-            <SkillStorePanel />
+            <SkillStorePanel
+              settings={settings}
+              onUpdateSettings={(patch) =>
+                void updateSettings(patch, { silent: true, keepInteractive: true })
+              }
+              onOpenExternalUrl={(url) => void openExternalUrl(url)}
+            />
           ) : activeTab === "skins" ? (
             <SkinStorePanel />
           ) : (

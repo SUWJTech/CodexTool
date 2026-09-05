@@ -62,6 +62,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   codexAnalyticsWeeklyBudgetUsd: null,
   locale: DEFAULT_LOCALE,
   skippedUpdateVersion: null,
+  skillsmpApiKey: null,
 };
 
 function buildImportNotice(
@@ -1203,7 +1204,7 @@ export function useCodexController(
   const onReauthorizeAccount = useCallback((account: AccountSummary) => {
     setOauthWaitingForCallback(false);
     setReauthorizeAccount(account);
-    setAddDialogMode("account");
+    setAddDialogMode(account.sourceKind === "relay" ? "relay" : "account");
     setAddDialogOpen(true);
   }, []);
 
@@ -1283,6 +1284,35 @@ export function useCodexController(
         await invoke<AccountSummary>("create_api_account", { input });
         await loadAccounts();
         setAddDialogOpen(false);
+        setNotice({
+          type: "ok",
+          message: copy.notices.apiAccountCreated(input.label),
+        });
+      } catch (error) {
+        const message = localizeError(String(error));
+        setNotice({
+          type: "error",
+          message: copy.notices.apiAccountCreateFailed(message),
+        });
+        throw new Error(message);
+      } finally {
+        setImportingAccounts(false);
+      }
+    },
+    [copy.notices, loadAccounts, localizeError],
+  );
+
+  const onUpdateApiAccount = useCallback(
+    async (accountId: string, input: CreateApiAccountInput) => {
+      setImportingAccounts(true);
+      try {
+        await invoke<AccountSummary>("update_api_account", {
+          accountId,
+          input,
+        });
+        await loadAccounts();
+        setAddDialogOpen(false);
+        setReauthorizeAccount(null);
         setNotice({
           type: "ok",
           message: copy.notices.apiAccountCreated(input.label),
@@ -1740,6 +1770,7 @@ export function useCodexController(
     onCompleteOauthCallbackLogin,
     onImportCurrentAuth,
     onCreateApiAccount,
+    onUpdateApiAccount,
     onTestApiAccountConnection,
     onImportAuthFiles,
     onExportAccounts,

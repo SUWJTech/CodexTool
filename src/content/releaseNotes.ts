@@ -1,4 +1,20 @@
-export const bundledReleaseNotes = `### 0.1.4
+export const bundledReleaseNotes = `### 0.1.5
+
+#### English
+
+- Rebuilt the Skill workspace around skills.sh discovery, leaderboard filtering, Git URL installation, and local enable/disable management.
+- Added a consistent in-app Skill detail card backed by the repository SKILL.md.
+- Replaced slow full-repository cloning for marketplace installs with targeted GitHub HTTPS downloads and a bounded Git fallback.
+- Updated relay account editing and the CodexTool storefront endpoint while preserving the existing macOS and Windows integrations.
+
+#### 中文
+
+- 重构 Skill 工作区，支持 skills.sh 榜单与搜索、Git 地址安装，以及本地 Skill 启用和禁用管理。
+- 新增统一风格的 Skill 详情弹窗，直接读取仓库中的 SKILL.md 展示完整介绍。
+- 市场安装改用 GitHub HTTPS 定向下载，并保留有超时限制的 Git 备用通道，避免完整克隆长时间卡住。
+- 完善中转账号编辑与 CodexTool 商城地址，同时保持 macOS 与 Windows 原有集成不变。
+
+### 0.1.4
 
 #### English
 

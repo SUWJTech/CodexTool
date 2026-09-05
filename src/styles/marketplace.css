@@ -1123,3 +1123,810 @@
   .storePaymentPicker > div,
   .storeCouponRow { grid-template-columns: 1fr; }
 }
+
+/* Skill repository workspace */
+.skillRepositoryPage {
+  --skill-accent: var(--accent, var(--brand));
+}
+
+.skillRepositoryTabs {
+  display: flex;
+  gap: 6px;
+  margin: 16px 0 14px;
+  padding: 5px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.skillRepositoryTabs button,
+.skillProviderSwitch button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font: 750 0.78rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.skillRepositoryTabs button.isActive,
+.skillProviderSwitch button.isActive {
+  border-color: color-mix(in srgb, var(--skill-accent) 34%, var(--line));
+  background: color-mix(in srgb, var(--skill-accent) 12%, var(--panel));
+  color: var(--ink);
+}
+
+.skillProviderSwitch {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 86%, var(--surface) 14%);
+}
+
+.skillProviderSwitch button {
+  min-height: 32px;
+  padding-inline: 12px;
+}
+
+.skillDiscoveryPanel {
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--panel) 94%, var(--surface) 6%);
+  box-shadow: var(--shadow-soft);
+}
+
+.skillDiscoveryRow {
+  display: grid;
+  grid-template-columns: auto minmax(260px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.skillLeaderboardSwitch {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--surface) 74%, var(--panel));
+}
+
+.skillLeaderboardSwitch button,
+.skillSourceFilters button {
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 11px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 0.75rem/1 var(--font-ui);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.skillLeaderboardSwitch button.isActive,
+.skillSourceFilters button.isActive {
+  border-color: color-mix(in srgb, var(--skill-accent) 30%, var(--line));
+  background: color-mix(in srgb, var(--skill-accent) 11%, var(--panel));
+  color: var(--skill-accent);
+}
+
+.skillDiscoveryRow .skillProviderSwitch {
+  justify-self: end;
+}
+
+.skillSourceFilters {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding-top: 12px;
+  overflow-x: auto;
+  border-top: 1px solid var(--line);
+}
+
+.skillSourceFilters strong {
+  flex: 0 0 auto;
+  margin-right: 5px;
+  color: var(--muted);
+  font: 750 0.74rem/1 var(--font-ui);
+}
+
+.skillSourceFilters button {
+  min-height: 30px;
+  padding: 0 10px;
+  border-color: var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+}
+
+.skillSearchRow {
+  margin: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.skillSearchRow .primary,
+.skillGitInstall > .primary {
+  min-width: 92px;
+}
+
+.skillApiKeyField {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 14px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--skill-accent) 25%, var(--line));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--skill-accent) 6%, var(--panel));
+  color: var(--ink);
+  font: 750 0.76rem/1.35 var(--font-ui);
+}
+
+.skillApiKeyField input {
+  width: 100%;
+  min-height: 40px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  background: var(--panel);
+  color: var(--ink);
+  font: 650 0.82rem/1 var(--font-ui);
+}
+
+.skillApiKeyField span {
+  color: var(--muted);
+  font-size: 0.71rem;
+  font-weight: 600;
+}
+
+.skillCardActions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.skillGitInstall {
+  display: grid;
+  gap: 12px;
+  max-width: 720px;
+  margin: 2px 0 18px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow-soft);
+}
+
+.skillGitInstall h3,
+.skillGitInstall p {
+  margin: 0;
+}
+
+.skillGitInstall h3 {
+  font-size: 18px;
+}
+
+.skillGitInstall p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.localSkillSummary {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin: 4px 0 14px;
+  color: var(--muted);
+  font: 650 0.77rem/1 var(--font-ui);
+}
+
+.localSkillSummary strong {
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 850;
+}
+
+.localSkillTable {
+  width: 100%;
+  overflow-x: auto;
+  padding: 1px;
+  scrollbar-width: thin;
+}
+
+.localSkillRow {
+  display: grid;
+  grid-template-columns: minmax(230px, .85fr) minmax(320px, 1.45fr) 104px 88px;
+  align-items: center;
+  gap: 18px;
+  min-width: 850px;
+  padding: 0 16px;
+}
+
+.localSkillTableBody {
+  display: grid;
+  gap: 10px;
+  min-width: 850px;
+}
+
+.localSkillRow {
+  position: relative;
+  min-height: 82px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  box-shadow: 0 7px 20px color-mix(in srgb, var(--ink) 3.5%, transparent);
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.localSkillRow:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--skill-accent) 30%, var(--line));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--skill-accent) 7%, transparent);
+}
+
+.localSkillRow.isEnabled::before {
+  position: absolute;
+  top: 13px;
+  bottom: 13px;
+  left: -1px;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: var(--skill-accent);
+  content: "";
+}
+
+.localSkillIdentity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.localSkillInitial {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--skill-accent) 11%, var(--panel));
+  color: var(--skill-accent);
+  font: 850 .92rem/1 var(--font-ui);
+}
+
+.localSkillIdentity > div {
+  min-width: 0;
+}
+
+.localSkillIdentity h3 {
+  overflow: hidden;
+  margin: 0 0 5px;
+  color: var(--ink);
+  font: 800 .84rem/1.15 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.localSkillIdentity div > span,
+.localSkillDescription {
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  color: var(--muted);
+  font: 600 .69rem/1.25 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.localSkillDescription {
+  min-width: 0;
+}
+
+.localSkillState {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink);
+  font: 750 .73rem/1 var(--font-ui);
+  white-space: nowrap;
+}
+
+.localSkillState i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #20b36b;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #20b36b 12%, transparent);
+}
+
+.localSkillRow.isDisabled .localSkillState i {
+  background: var(--subtle);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--subtle) 12%, transparent);
+}
+
+.localSkillRow.isDisabled .localSkillIdentity,
+.localSkillRow.isDisabled .localSkillDescription {
+  opacity: .68;
+}
+
+.localSkillAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.localSkillAction .compactAction {
+  width: 72px;
+  min-width: 72px;
+  min-height: 34px;
+  padding: 0 10px;
+}
+
+.skillLeaderboardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.skillLeaderboardCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 82px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  background: var(--panel);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--ink) 4%, transparent);
+  transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.skillLeaderboardCard:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--skill-accent) 32%, var(--line));
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--skill-accent) 8%, transparent);
+}
+
+.skillLeaderboardDetailTrigger {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.skillLeaderboardDetailTrigger:focus-visible {
+  border-radius: 8px;
+  outline: 2px solid color-mix(in srgb, var(--skill-accent) 68%, transparent);
+  outline-offset: 4px;
+}
+
+.skillRank {
+  align-self: start;
+  padding-top: 3px;
+  color: var(--subtle);
+  font: 800 0.7rem/1 var(--font-ui);
+  text-align: center;
+}
+
+.skillLeaderboardBody {
+  display: block;
+  min-width: 0;
+}
+
+.skillLeaderboardTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.skillLeaderboardTitle > strong {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font: 800 0.88rem/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skillLeaderboardTitle > span {
+  flex: 0 0 auto;
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--skill-accent) 12%, var(--panel));
+  color: var(--skill-accent);
+  font: 750 0.58rem/1 var(--font-ui);
+}
+
+.skillLeaderboardMeta {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.skillLeaderboardMeta span {
+  flex: 0 0 auto;
+  max-width: 58%;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 3px 6px;
+  color: var(--muted);
+  font: 650 0.65rem/1 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skillLeaderboardMeta span:first-child {
+  border-color: color-mix(in srgb, var(--ok) 24%, var(--line));
+  background: color-mix(in srgb, var(--ok) 8%, var(--panel));
+  color: color-mix(in srgb, var(--ok) 82%, var(--ink));
+}
+
+.skillLeaderboardMeta span.isGrowing {
+  color: var(--ok);
+}
+
+.skillLeaderboardDescription {
+  display: -webkit-box;
+  margin: 8px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.skillDetailOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: var(--overlay-scrim-strong);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: fadeIn 160ms ease both;
+}
+
+.skillDetailDialog {
+  display: grid;
+  width: min(760px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--skill-accent) 24%, var(--line));
+  border-radius: 22px;
+  padding: 20px;
+  background: var(--panel-bg);
+  box-shadow: 0 30px 80px rgba(3, 8, 24, .34);
+  animation: riseIn 220ms ease both;
+}
+
+.skillDetailDialog > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+}
+
+.skillDetailDialog > header span {
+  color: var(--skill-accent);
+  font: 850 .66rem/1 var(--font-ui);
+  letter-spacing: .06em;
+}
+
+.skillDetailDialog h3 {
+  overflow: hidden;
+  margin: 7px 0 5px;
+  color: var(--ink);
+  font: 880 1.35rem/1.2 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skillDetailDialog header p {
+  margin: 0;
+  color: var(--muted);
+  font: 650 .75rem/1.4 var(--font-ui);
+}
+
+.skillDetailClose {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0;
+  background: var(--panel);
+  color: var(--muted);
+  font: 500 1.35rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.skillDetailMeta {
+  display: flex;
+  gap: 7px;
+  margin-top: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.skillDetailMeta span {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 5px 8px;
+  background: var(--panel);
+  color: var(--muted);
+  font: 700 .68rem/1 var(--font-ui);
+}
+
+.skillDetailMeta span:first-child,
+.skillDetailMeta span.isInstalled {
+  border-color: color-mix(in srgb, var(--ok) 28%, var(--line));
+  background: color-mix(in srgb, var(--ok) 8%, var(--panel));
+  color: color-mix(in srgb, var(--ok) 82%, var(--ink));
+}
+
+.skillDetailSummary {
+  display: grid;
+  gap: 7px;
+  margin-top: 16px;
+  border: 1px solid color-mix(in srgb, var(--skill-accent) 18%, var(--line));
+  border-radius: 14px;
+  padding: 13px 14px;
+  background: color-mix(in srgb, var(--skill-accent) 5%, var(--panel));
+}
+
+.skillDetailSummary strong {
+  color: var(--ink);
+  font: 800 .78rem/1 var(--font-ui);
+}
+
+.skillDetailSummary p {
+  margin: 0;
+  color: var(--muted);
+  font: 600 .78rem/1.55 var(--font-ui);
+}
+
+.skillDetailDocument {
+  min-height: 180px;
+  margin-top: 12px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+  scrollbar-width: thin;
+}
+
+.skillDetailDocument pre {
+  margin: 0;
+  padding: 16px;
+  color: var(--ink);
+  font: 600 .76rem/1.65 var(--font-ui);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.skillDetailLoading,
+.skillDetailError {
+  display: flex;
+  min-height: 180px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 20px;
+  color: var(--muted);
+  font: 700 .76rem/1.45 var(--font-ui);
+  text-align: center;
+}
+
+.skillDetailError {
+  flex-direction: column;
+  color: var(--danger);
+}
+
+.skillDetailError span {
+  max-width: 100%;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.skillDetailDialog > footer {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.skillDetailDialog > footer > span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--subtle);
+  font: 650 .68rem/1 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skillDetailDialog > footer > div {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.skillLeaderboardActions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.skillOpenButton,
+.skillInstallButton {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0;
+  background: var(--panel);
+  color: var(--muted);
+  font: 800 1rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.skillInstallButton {
+  border-color: color-mix(in srgb, var(--skill-accent) 36%, var(--line));
+  background: var(--skill-accent);
+  color: white;
+}
+
+.skillInstallButton.isInstalled {
+  background: color-mix(in srgb, var(--ok) 12%, var(--panel));
+  color: var(--ok);
+}
+
+.skillInstallButton:disabled {
+  cursor: default;
+  opacity: .55;
+}
+
+.skillInstallNotice {
+  position: sticky;
+  z-index: 8;
+  top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: min(100%, 620px);
+  margin: 0 auto 12px;
+  padding: 10px 14px;
+  border: 1px solid color-mix(in srgb, var(--skill-accent) 32%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 92%, var(--skill-accent) 8%);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--ink) 12%, transparent);
+  color: var(--ink);
+  font: 700 0.75rem/1.35 var(--font-ui);
+}
+
+.skillInstallNotice.isSuccess {
+  border-color: color-mix(in srgb, var(--ok) 38%, var(--line));
+  color: var(--ok);
+}
+
+.skillInstallNotice > span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.skillInstallSpinner {
+  display: block;
+  width: 13px;
+  height: 13px;
+  box-sizing: border-box;
+  border: 2px solid color-mix(in srgb, currentColor 28%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: skillInstallSpin .75s linear infinite;
+}
+
+@keyframes skillInstallSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 760px) {
+  .skillRepositoryTabs {
+    margin-top: 12px;
+  }
+
+  .skillSearchRow {
+    grid-template-columns: 1fr;
+  }
+
+  .skillDiscoveryRow {
+    grid-template-columns: 1fr;
+  }
+
+  .skillLeaderboardSwitch,
+  .skillDiscoveryRow .skillProviderSwitch {
+    width: 100%;
+    justify-self: stretch;
+    overflow-x: auto;
+  }
+
+  .skillLeaderboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .skillSearchRow .primary,
+  .skillGitInstall > .primary {
+    width: 100%;
+  }
+
+  .skillDetailOverlay {
+    padding: 12px;
+  }
+
+  .skillDetailDialog {
+    max-height: calc(100dvh - 24px);
+    padding: 16px;
+  }
+
+  .skillDetailDialog > footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .skillDetailDialog > footer > div,
+  .skillDetailDialog > footer button {
+    width: 100%;
+  }
+
+}
+
+@media (min-width: 761px) and (max-width: 1180px) {
+  .skillDiscoveryRow {
+    grid-template-columns: auto minmax(240px, 1fr);
+  }
+
+  .skillDiscoveryRow .skillProviderSwitch {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .skillLeaderboardGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
